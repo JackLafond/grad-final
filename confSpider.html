@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spider Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .graph-container {
+            display: flex;
+        }
+
+        #spider-chart {
+            margin-right: 50px;
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav tabindex="0">
+        <div class="menu_dropdown">
+            <p class="thislink">Home</p>
+            <p><a href="test2.html">Final Visualization</a></p>
+            <p><a href="ProcessBook.html">Process Book</a></p>
+            <p><a href="Presentation.html">Presentation</a></p>
+            <p><a href="recreateWash.html">Washington Post</a></p>
+            <p><a href="hive.html">Hive</a></p>
+            <p><a href="spiderChart.html">Spider Chart</a></p>
+            <p><a href="pcp.html">PCP</a></p>
+            <p><a href="confSpider.html">Conf-Spider</a></p>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="graph-container">
+            <div id="spider-chart"></div>
+            <div class="legend" id="legend"></div>
+        </div>
+    </div>
+
+    <script>
+        d3.csv("python/results/total/college_small_multiples_total.csv").then(function(data) {
+            
+            var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+            // Combine all data to calculate the maximum value
+            var allData = [];
+            data.forEach(function(conf) {
+                allData = allData.concat(Object.values(conf).map(Number));
+            });
+
+            // maximum value of all counts
+            var maxCount = d3.max(allData);
+
+            // Dimensions for the plot
+            let width = 600;
+            let height = 600;
+
+            let svg = d3.select("#spider-chart").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            let categories = ['First_AP', 'Second_AP', 'Pro_Bowl'];
+
+            // Scale for the radar chart using the maximum value
+            let radialScale = d3.scaleLinear()
+                .domain([0, maxCount])
+                .range([0, Math.min(width, height) / 2 - 50]);
+
+            // Fixed radius for radial ticks
+            let tickRadius = Math.min(width, height) / 2 - 50;
+
+            let ticks = [50, 100, 150, 200, 250, 300]; // Adjust as needed
+            svg.selectAll("circle.big-circle")
+                .data(ticks)
+                .enter().append("circle")
+                .attr("class", "big-circle")
+                .attr("cx", width / 2)
+                .attr("cy", height / 2)
+                .attr("fill", "none")
+                .attr("stroke", "gray")
+                .attr("r", d => radialScale(d));
+
+            // tick labels
+            svg.selectAll("text.tick-label")
+                .data(ticks)
+                .enter().append("text")
+                .attr("class", "tick-label")
+                .attr("x", width / 2)
+                .attr("y", d => height / 2 - radialScale(d))
+                .attr("dy", "0.35em")
+                .attr("text-anchor", "middle")
+                .text(function(d) { return d; });
+
+            // axes and paths
+            data.forEach(function(conf, index) {
+                // Draw axes
+                for (let i = 0; i < categories.length; i++) {
+                    let angle = Math.PI / 2 - 2 * Math.PI * i / categories.length;
+                    svg.append("line")
+                        .attr("class", "axis-line")
+                        .attr("x1", width / 2)
+                        .attr("y1", height / 2)
+                        .attr("x2", width / 2 + radialScale(ticks[ticks.length - 1]) * Math.cos(angle))
+                        .attr("y2", height / 2 - radialScale(ticks[ticks.length - 1]) * Math.sin(angle))
+                        .attr("stroke", "black")
+                        .attr("stroke-dasharray", "5");
+                        
+                    // category names
+                    svg.append("text")
+                        .attr("x", width / 2 + radialScale(ticks[ticks.length - 1]) * Math.cos(angle) * .95)
+                        .attr("y", height / 2 - radialScale(ticks[ticks.length - 1]) * Math.sin(angle) * .95)
+                        .attr("dy", "0.8em")
+                        .attr("text-anchor", "middle")
+                        .text(categories[i]);
+                }
+
+                // Draw data path
+                let line = d3.line()
+                    .x(function(d, i) { return width / 2 + radialScale(conf[categories[i]]) * Math.cos(Math.PI / 2 - 2 * Math.PI * i / categories.length); })
+                    .y(function(d, i) { return height / 2 - radialScale(conf[categories[i]]) * Math.sin(Math.PI / 2 - 2 * Math.PI * i / categories.length); });
+
+                svg.append("path")
+                    .datum(categories)
+                    .attr("d", line)
+                    .attr("fill", colorScale(index)) // Fill color based on index
+                    .attr("fill-opacity", 0.5)
+                    .on("mouseover", function(d, i) { // Hover event
+                        d3.select(this).attr("fill-opacity", .8); // Increase opacity
+                    })
+                    .on("mouseout", function(d, i) { // Mouseout event on path
+                        d3.select(this).attr("fill-opacity", 0.5); // Revert opacity
+                    });
+            });
+
+            // legend
+            var legend = d3.select("#legend").selectAll(".legend-item")
+                .data(data)
+                .enter().append("div")
+                .attr("class", "legend-item")
+
+            legend.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", function(d, i) { return colorScale(i); });
+
+            legend.append("div")
+                .text(function(d) { return d.Conf_Clean; });
+        });
+    </script>
+
+</body>
+</html>
