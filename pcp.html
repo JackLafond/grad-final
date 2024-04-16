@@ -71,9 +71,11 @@
             </div>
             <div id="svg-container6"></div>
         </div>
+        <div id="svg-container7"></div>
 
     </body>
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <!-- <script src="https://d3js.org/d3.v7.min.js"></script> -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script>
@@ -105,7 +107,7 @@
                     } else if (d.Pos == 'OT' || d.Pos == 'OG' || d.Pos == 'G' || d.Pos == 'NT' || d.Pos == 'C') {
                         d.Pos = 'OL';
                     }
-                })
+                });
 
                 data = data.filter(d => { return (d.Pos != 'LS' && d.Pos != 'P');});
 
@@ -784,13 +786,157 @@
 
         }
 
+        function makeSECBubble() {
 
-        makePosPCP();
-        makeConfPCP();
-        makeConfBars();
+            function sumValue(group) {
+                return d3.sum(group, function(d) {
+                    return d["value"];
+                });
+            }
+
+            childrenAccess = ([key, value]) => value.size && Array.from(value)
+
+            const margin = {top: 30, right: 150, bottom: 30, left: 30};
+                const width = 1000 - margin.left - margin.right;
+                const height = 1000 - margin.top - margin.bottom;
+
+            d3.csv("python/results/total/sec_bubble.csv", function(data) {
+
+                let accolades = ["First_AP", "Second_AP", "Pro_Bowl", "MVP", "SB_MVP", "SB_WIN", "OPOY", "DPOY", "OROY", "DROY"];
+
+                let color = d3.scaleOrdinal().domain(accolades).range(d3.schemeTableau10);
+
+                data.forEach(d => {
+                    if(d.Pos == 'OLB' || d.Pos == 'ILB') {
+                        d.Pos = 'LB';
+                    } else if (d.Pos == 'SS' || d.Pos == 'FS') {
+                        d.Pos = 'S';
+                    } else if (d.Pos == 'OT' || d.Pos == 'OG' || d.Pos == 'G' || d.Pos == 'NT' || d.Pos == 'C') {
+                        d.Pos = 'OL';
+                    }
+                });
+
+                data = data.filter(d => { return (d.Pos != 'LS' && d.Pos != 'P');});
+
+                let groups = d3.rollup(data, 
+                                    sumValue,
+                                    function(d) { return d.Pos; },
+                                    function(d) { return d.Accolade; }
+                                );
+
+                let root = d3.hierarchy([null, groups], childrenAccess)
+                    .sum(([,value]) => value)
+                    .sort((a, b) => b.value - a.value);
+
+                let packed = d3.pack()
+                    .size([width, height])
+                    .padding(3);
+
+                packed(root);
+                
+                var svg = d3.select("#svg-container7")
+                    .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                        .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
+
+                svg.selectAll('circle')
+                    // slice(1) skips the root node
+                    .data(root.descendants())
+                    .enter()
+                    .append('circle')
+                        .attr('r', (d) => {
+                            return d.r;
+                        })
+                        .attr('cx', d => d.x)
+                        .attr('cy', d => d.y)
+                        .attr('stroke', 'none')
+                        .attr('stroke-width', 2)
+                        .attr('fill', (d) => {
+                            if(d.depth == 2) {
+                                return color(d.data[0]);
+                            } else if(d.depth == 1) {
+                                return '#C1C1C1';
+                            } else {
+                                return '#D3D3D3';
+                            }
+                        })
+                        .attr('opacity', '1');
+
+                svg.selectAll('text')
+                    .data(root.descendants())
+                    .enter()
+                    .append('text')
+                        .attr('x', d => d.x - 5)
+                        .attr('y', (d) => {
+                            if(d.depth == 2) {
+                                return d.y + 2;
+                            } else {
+                                return d.y - d.r - 2;
+                            }
+                        })
+                        .text((d) => {
+                            if(d.depth == 2) {
+                                if(d.data[1] != 0) {
+                                    return d.data[1];
+                                }
+                            } else {
+                                return d.data[0];
+                            }
+                        })
+                        .attr('font-family', 'helvetica')
+                        .attr('font-size', (d) => {
+                            if(d.depth == 2) {
+                                return '12px';
+                            } else {
+                                return '16px';
+                            }
+                        });
+
+                // make legend 
+                svg.selectAll('.legend-circle')
+                    .data(accolades)
+                    .enter()
+                        .append('circle')
+                        .attr("class", 'legend-circle')
+                        .attr('r', 8)
+                        .attr('cx', width + 20)
+                        .attr('cy', function (d, i) {
+                            return 100 + (30 * i);
+                        })
+                        .style('fill', function (d) {
+                            return color(d);
+                        });
+
+                svg.selectAll('.legend-text')
+                    .data(accolades)
+                    .enter()
+                        .append("text")
+                        .attr('class', 'legend-text')
+                        .attr("x", width + 40)
+                        .attr("y", function (d, i) {
+                            return 100 + (30 * i);
+                        })
+                        .text(function (d) {
+                            return d;
+                        })
+                        .style("font-size", "16px")
+                        .style("font-family", "Helvetica")
+                        .attr("alignment-baseline","middle");
+
+            });
+        }
+
+
+        // makePosPCP();
+        // makeConfPCP();
+        // makeConfBars();
         makeSmallMultiples();
         makeLines();
         makeWeightedLines();
+        makeSECBubble();
 
     </script>
 

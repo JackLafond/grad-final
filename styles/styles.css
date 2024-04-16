@@ -3,7 +3,7 @@
 
 
 body{
-	background-color: #FFFFFF;
+	background-color: #eaeaea;
 	color: #333;
 	font-family: Verdana, Geneva, sans-serif;
 }
@@ -43,7 +43,7 @@ footer p {
 nav {
 	position: relative;
 	display: inline-block;
-​    z-index: 2;
+	z-index: 2;
 	padding: 0 0 8px 0;
     margin: 0;
     outline: 0;
@@ -145,7 +145,7 @@ em{
 }
 
 @media screen and (min-width: 601px){
-	main img {width: 300px; heigth: 375px;}
+	main img {width: 300px; height: 375px;}
 }
 
 main section.content{
