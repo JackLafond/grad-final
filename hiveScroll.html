@@ -27,7 +27,7 @@
 		body {
 			min-height: 1280px;
 			font-weight: 300;
-			color: #2a2a2a;
+			/* color: #2a2a2a; */
             display: flex;
             flex-direction: column;
 		}
@@ -38,7 +38,7 @@
 		h3,
 		a {
 			margin: 0;
-			font-weight: 300;
+			font-weight: 200;
 		}
 
 		a,
@@ -74,11 +74,12 @@
 		/* demo */
 
 		#intro {
-			margin-bottom: 200px;
+			margin-bottom: 300px;
 		}
 
+        /* controls how big the page is */
 		#outro {
-			height: 4400px;
+			height: 50px;
 		}
 
 		/* scrollama */
@@ -87,17 +88,19 @@
 			position: relative;
 		}
 
+        /* Scroll box text */
 		.scroll__text {
 			position: relative;
 			padding: 0 1rem;
 			margin: 0 auto;
-			width: 33%;
+			width: 66%;
+            /* color: #f30; */
 		}
 
 		.step {
-			background-color: rgba(255,255,255,0.7);
+			/* background-color: rgba(255,255,255,0.7); */
 			margin: 2rem auto 4rem auto;
-			border: 1px solid #333;
+			/* border: 1px solid #333; */
 		}
 
 		.step.is-active {
@@ -221,7 +224,7 @@
             <p><a href="ProcessBook.html">Process Book</a></p>
             <p><a href="Presentation.html">Presentation</a></p>
             <p><a href="recreateWash.html">Washington Post</a></p>
-            <p class="thislink">Hive</p>
+            <p class="thislink">Hive Scroll</p>
             </div>
         </nav>
 
@@ -274,8 +277,8 @@
         <main id='container'>
 
             <div id='sticky'>
-                <svg viewBox="0 0 960 600" style="width:100%;height:auto;">
-                  <g id='svg-container' fill="none" stroke="#000" stroke-linejoin="round" stroke-linecap="round"></g>
+                <svg viewBox="0 0 7500 1000" style="width:100%;height:auto;">
+                  <g id='#svg-container' fill="none" ></g>
                 </svg>
             </div>
 
@@ -287,24 +290,25 @@
             </section>
     
             <div id='scrolly'>
-                <div id='anchor-1'></div>
-    
-                
-    
-                <div id='anchor-2'></div>
+                <div id='anchor-2'>
+                    
+                </div>
                 <section id='scroll'>
                     <div class='scroll__text'>
                         <div class='step' data-step='1'>
-                            <p>STEP 1</p>
+                            <p>This is where we can explain the axes. </p>
                         </div>
                         <div class='step' data-step='2'>
-                            <p>STEP 2</p>
+                            <p>This is where we can explain the nodes.</p>
                         </div>
     
                         <div class='step' data-step='3'>
-    
-                            <p>STEP 3</p>
-                            <div id='anchor-3'></div>
+                            <p>This is where we can explain the lines.</p>
+                            
+                        </div>
+
+                        <div class='step' data-step='4'>
+                            <p>Wrap it up. </p>
                         </div>
     
                     </div>
@@ -621,42 +625,53 @@
 
                 // scrollama event handlers
                 function handleStepEnter(response) {
-                    // response = { element, direction, index }
                     console.log(response.index, '-------- enter');
                     // Add logic to show only the axis when entering Step 1
                     if (response.index === 0) {
                         svg.selectAll(".axis").attr('opacity', 1);
                         svg.selectAll(".link").attr('opacity', 0);
                         svg.selectAll(".node").attr('opacity', 0);
+                        svg.selectAll('.legend-circle').attr('opacity', 0);
+                        svg.selectAll('.legend-text').attr('opacity', 0);
                     }
                     if (response.index === 1) {
                         svg.selectAll(".axis").attr('opacity', 1);
                         svg.selectAll(".link").attr('opacity', 0);
                         svg.selectAll(".node").attr('opacity', 1);
+                        svg.selectAll('.legend-circle').attr('opacity', 1);
+                        svg.selectAll('.legend-text').attr('opacity', 1);
                     }
                     if (response.index === 2) {
                         svg.selectAll(".axis").attr('opacity', 1);
                         svg.selectAll(".link").attr('opacity', 1);
                         svg.selectAll(".node").attr('opacity', 1);
+                        svg.selectAll('.legend-circle').attr('opacity', 1);
+                        svg.selectAll('.legend-text').attr('opacity', 1);
+                    }
+                    if (response.index === 3) {
+                        svg.selectAll(".axis").attr('opacity', 0);
+                        svg.selectAll(".link").attr('opacity', 0);
+                        svg.selectAll(".node").attr('opacity', 0);
+                        svg.selectAll('.legend-circle').attr('opacity', 0);
+                        svg.selectAll('.legend-text').attr('opacity', 0);
                     }
                     // Add logic to show corresponding map step if scrolling down
-                    if (response.direction == 'down') svg.select('#step-'+response.index).attr('opacity', 1);
+                    // if (response.direction == 'down') svg.select('#step-'+response.index).attr('opacity', 1);
                 }
+
 
                 function handleStepExit(response) {
                     console.log(response.index, '-------- exit');
                     response.element.classList.remove('is-active');
                     
                     if (response.index === 0 && response.direction === 'up') {
-                        svg.selectAll(".node").style("visibility", "visible");
-                        svg.selectAll(".link").style("visibility", "visible");
-                        svg.selectAll(".axis").style("visibility", "visible");
+                        svg.selectAll(".axis").attr('opacity', 1);
+                        svg.selectAll(".link").attr('opacity', 1);
+                        svg.selectAll(".node").attr('opacity', 1);
+                        svg.selectAll('.legend-circle').attr('opacity', 1);
+                        svg.selectAll('.legend-text').attr('opacity', 1);
                     }
                     
-                    // Hide corresponding map step if scrolling up
-                    if (response.direction == 'up') {
-                        svg.select('#step-' + response.index).attr('opacity', 0);
-                    }
                 }
 
 
@@ -679,8 +694,8 @@
                     scroller.setup({
                         step: '.scroll__text .step',
                         debug: true,
-                        offset: 0.2,
-                        // progress: true,
+                        offset: 0.5,
+                        // progress: false,
                     })
                         .onStepEnter(handleStepEnter)
                         .onStepExit(handleStepExit)
