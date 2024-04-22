@@ -57,6 +57,7 @@
 
 		.intro__overline {
 			font-size: 1.4rem;
+            background-color: rgba(255,255,255,0.7);
 		}
 
 		.intro__hed {
@@ -65,10 +66,12 @@
 			text-transform: uppercase;
 			font-weight: 900;
 			letter-spacing: 0.05em;
+            background-color: rgba(255, 255, 255, 0.936);
 		}
 
 		.intro__dek {
 			font-size: 1.4rem;
+            background-color: rgba(255, 255, 255, 0.936);
 		}
 
 		/* demo */
@@ -98,9 +101,11 @@
 		}
 
 		.step {
-			/* background-color: rgba(255,255,255,0.7); */
-			margin: 2rem auto 4rem auto;
-			/* border: 1px solid #333; */
+			background-color: rgba(255,255,255,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
 		}
 
 		.step.is-active {
@@ -110,8 +115,13 @@
 		.step p {
 			text-align: center;
 			padding: 1rem;
-			font-size: 1.5rem;
+			/* font-size: 1.5rem; */
 		}
+
+        .step-text{
+            font-size: 1rem;
+        }
+
 
 		nav {
 			position: fixed;
@@ -212,6 +222,25 @@
             transform: translate(-50%, -50%);
         }
 
+        /* Add CSS styling for the button */
+        .back-to-top-btn {
+            background-color: grey;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            display: flex;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-to-top-btn:hover {
+            background-color: #0056b3;
+        }
+
+
 	</style>
 
     <link href="styles/styles.css" rel="stylesheet" type="text/css">
@@ -224,6 +253,7 @@
             <p><a href="ProcessBook.html">Process Book</a></p>
             <p><a href="Presentation.html">Presentation</a></p>
             <p><a href="recreateWash.html">Washington Post</a></p>
+            <p><a href="hive.html">Hive</a></p>
             <p class="thislink">Hive Scroll</p>
             </div>
         </nav>
@@ -296,19 +326,23 @@
                 <section id='scroll'>
                     <div class='scroll__text'>
                         <div class='step' data-step='1'>
-                            <p>This is where we can explain the axes. </p>
+                            <p class="step-text">The hive plot is made up of three axes with each axis representing a certain category. The top left axis
+                                represents colleges, the right axis represents the NFL teams, and the bottom left axis represents a players the rank in the NFL.
+                            </p>
                         </div>
                         <div class='step' data-step='2'>
-                            <p>This is where we can explain the nodes.</p>
+                            <p class="step-text">A node along the top left axis represent the different college conferences. A node on the right axis
+                                represents each of the 32 NFL teams. A node on the bottom left axis represents the rank of a player, so a player with a lot of
+                                accolades will be closer to the bottom.
+                            </p>
                         </div>
-    
                         <div class='step' data-step='3'>
-                            <p>This is where we can explain the lines.</p>
-                            
+                            <p class="step-text">A line between two nodes signifies a relationship, and the connection of a line throughout the hive
+                                plot marks a player.</p>
                         </div>
-
                         <div class='step' data-step='4'>
-                            <p>Wrap it up. </p>
+                            <p class="step-text">Now that you understand the plot go back up and interact with the plot. Change the rank of accolades, the draft year, but most importantly, hover over the nodes on the accolades axis to see which players rank the highest or lowest.</p>
+                            <button onclick="scrollToTop()" class="back-to-top-btn">Back to Top</button>
                         </div>
     
                     </div>
@@ -329,6 +363,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/2.0.0/scrollama.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
     <script>
+        
         function makeHive() {
 
             d3.select("#svg-container").selectAll("*").remove();
@@ -710,6 +745,10 @@
             
         }
         window.onload = makeHive();
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
     </body>
 
