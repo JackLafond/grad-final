@@ -22,7 +22,7 @@
           opacity: 1;
         }
 
-        #weighted-lines {
+        #content-weighted-lines {
             display: flex;
             flex-direction: row;
         }
@@ -41,6 +41,13 @@
             margin-top: 20px;
         }
 
+        body {
+            display: flex;
+            flex-direction: column;
+            margin-left: 15%;
+            margin-right: 15%;
+        }
+
     </style>
 
     <body>
@@ -57,21 +64,34 @@
             </div>
         </nav>
 
-        <div id="svg-container1"></div>
-        <div id="svg-container2"></div>
-        <div id="svg-container3"></div>
-        <div id="svg-container4"></div>
-        <div id="svg-container5"></div>
-        <div id="weighted-lines">
+        <div id="content-small-multiples">
+            <h3>Small Multiples</h3>
+            <div id="svg-small-multiples"></div>
+            <p>In looking at these small multiples it is important to consider the sample sizes of these accolades. For example awards like the MVP are only given to one player each year, and are mostly a QB biased position in the current landscape of the NFL. It is also important to consider that these aggregations are only for players who were drafted between 2010 and 2020, so players like Tom Brady and Aaron Rodgers are not inlcuded. As a result some of these less frequent and position specific awards are not the best for comparisons. Instead we should focus primarily on the follwoing three awards; Firt Team All Pro, Second Team All Pro, and Pro Bowl. For First and Second Team All Pro a player at each position is picked, making it a much more frequent award and non position biased. The Pro Bowl is an NFL run game at the end of the season which invites the game's all-stars based on player, coach, and fan voting. Like the All Pro awards the Pro Bowl invites players of all positions, and if a player declines to join like in the case that they are playing in the Super Bowl, then replacements are found making this another good award to represent general success across the NFL.</p>
+            <p>Considering these three accolades, it is clear that the SEC dominates all other college conferences as their drafted players from 2010-2020 have accumulated the most First and Second Team All Pro, and Pro Bowl awards, doubling most other conferences except for the "Other" grouping. Has this always been the trend though? In the next section we dive into the accolades by year to see the time trends of college conferences and their players' accolades.</p>
+        </div>
+        <div id="content-small-lines">
+            <h3>Accolades Over Time</h3>
+            <div id="svg-small-lines"></div>
+            <p>These line charts show the total accolades for NFL draftees colored by college conferences, and charted over draft years. Since the Y valeus for each year represent the total accolades for that college conference's draft class for that specific year we should expect to see a generally decreasing trend for all the lines as players drafted in more recent years like 2020 have had less time to accumulate awards when compared to players drafted in earlier years who have had more time in the NFL.</p>
+            <p>In the First Team All Pro chart there is no clear winner and each conference generally deacreased from 2010 to 2020. However, in the Second Team All Pro and Pro Bowl Charts is where the SEC starts to shine, as in both charts the SEC consitently charts more accoaldes than all other college conferences except for some occasional spikes. Anohter important note is that in each of these charts the SEC decreaseed less than most other college conferences, and in the case of Second Team All Pro, they were close to a horizontal trend. These two findings suggest that the SEC produces more NFL ready players each year than otehr conferences, and the smaller decrease suggests that in more recent years their players have actually become more NFL ready than in the past as their accolade scores are not decreasing as mmuch as other conferences.</p>
+        </div>
+        <div id="content-weighted-lines">
             <div class="sliders">
                 <input type="range" id="First_AP" min="0" max="4" value="3"><label for="First_AP">1st Team AP</label>
                 <input type="range" id="Second_AP" min="0" max="4" value="2"><label for="Second_AP">2nd Team AP</label>
                 <input type="range" id="Pro_Bowl" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
                 <button class="update" type="button" onclick="makeWeightedLines()">Update Chart</button>
             </div>
-            <div id="svg-container6"></div>
+            <div id="svg-weighted-lines"></div>
+            <p>Included here is a combined weighted score chart that aggregates each of the three awards based on their weights. The default weighting is 3, 2, and 1 for First Team All Pro, Second Team All Pro and Pro Bowl, however you can change these weights as you see fit, each scale ranges from 0 to 4.</p>
         </div>
-        <div id="svg-container7"></div>
+        <div id="content-sec-bubble">
+            <h3>SEC Accolade Bubble Chart</h3>
+            <p>From the previous charts it is clear that the SEC dominates other conferences in terms of producing NFL ready players, but what positions is it best at producing? Since First and Second Team All Pro, and Pro Bowl awards go to every position it is hard to see where on the field the SEC schools perform the bast. The following visualization shows a hierarvhy bubble charts that displays the accolades by position. The area of each circle is encoded by the total number of accolades for the circle allowing for comparisons within and across positions.</p>
+            <div id="svg-sec-bubble"></div>
+            <p>Suprisingly, the SEC does not produce nearly as many good QBs as it does for other positions. Another interesting finding is that for most positions, they have more Pro Bowls than Second Team All Pros and more Second Team All Pros than First Team All Pros. This is generally expected as First Team All Pro is the highest accolade among these three awards, However for Cornerback and Safety, these positions saw more First Team All Pros than double their Second Team All Pros. This suggests that the SEC is not just producing very good Cornerbacks and Safeties, but they are producing some of the leagues most elite defensive skill position players.</p>
+        </div>
 
     </body>
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
@@ -456,7 +476,7 @@
 
                 svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).tickSize(0));
+                    .call(d3.axisBottom(x).tickSizeInner(0));
 
                 // Add Y axis
                 var y = d3.scaleLinear()
@@ -499,12 +519,55 @@
 
         function makeSmallMultiples() {
 
+            let title_map = {
+                'MVP': 'MVP',
+                'SB_MVP': 'Super Bowl MVP',
+                'SB_WIN': 'Super Bowl Win',
+                'OPOY': 'OPOY',
+                'OROY': 'OROY',
+                'DPOY': 'DROY',
+                'DROY': 'DROY',
+                'Pro_Bowl': 'Pro Bowl',
+                'First_AP': 'First Team All Pro',
+                'Second_AP': 'Second Team All Pro'
+            }
+
             // Set the dimensions and margins of the graph
             const margin = { top: 40, right: 5, bottom: 10, left: 5 },
                 width = 250 - margin.left - margin.right,
                 height = 160 - margin.top - margin.bottom;
 
             d3.csv("python/results/total/college_conf_bars_total.csv", function(data) {
+
+                // Highlight the specie that is hovered
+                var highlight = function(d){
+
+                    let conf = d.conf;
+                    if(conf == 'Big Ten') {
+                        conf = 'Big_Ten';
+                    } else if (conf == 'Big 12') {
+                        conf = 'Big_12';
+                    }
+
+                    // first every group turns grey
+                    d3.selectAll(".bar")
+                        .transition().duration(200)
+                        .attr("opacity", ".05");
+                    // Second the hovered specie takes its color
+                    d3.selectAll(".bar." + conf)
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                        // .attr("stroke", "black")
+                        // .attr("stroke-width", "2px");
+                }
+
+                // Unhighlight
+                var doNotHighlight = function() {
+                    d3.selectAll(".bar")
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                        // .attr("stroke", "none");
+                }
 
                 let confs = ['ACC', 'Big 12', 'Big Ten', 'Other', 'Pac12', 'SEC'];
 
@@ -529,11 +592,13 @@
                     .range([height, margin.top]);
 
                 var xAxis = d3.axisBottom()
-                    .scale(xScale);
+                    .scale(xScale)
+                    .tickSize(0)
+                    .tickPadding([10]);
 
                 // create a separate SVG object for each group
                 // class each SVG with parameter from metrics
-                var svg = d3.select('#svg-container4').selectAll('svg')
+                var svg = d3.select('#svg-small-multiples').selectAll('svg')
                     .data(data)
                     .enter()
                         .append('svg')
@@ -555,12 +620,22 @@
                         .data(d.Values) // use d.value to get to the the_value
                         .enter()
                             .append('rect')
-                            .attr('class', 'bar')
+                            .attr('class', (c) => {
+                                if(c.conf == 'Big Ten') {
+                                    return 'bar Big_Ten';
+                                } else if(c.conf == 'Big 12') {
+                                    return 'bar Big_12';
+                                } else {
+                                    return 'bar ' + c.conf;
+                                }
+                            })
                             .attr('x', function(c) { return xScale(c.conf); })
                             .attr('width', xScale.bandwidth())
                             .attr('y', function(c) { return yScale(c.val); })
                             .attr('height', function(c) { return height - yScale(c.val); })
                             .attr('fill', function(c) { return c.color; })
+                            .on("mouseover", highlight)
+                            .on("mouseleave", doNotHighlight);
                             
                     d3.select("svg." + d.accolades)
                         .selectAll(".bar-label")
@@ -568,10 +643,11 @@
                         .enter()
                             .append('text')
                             .attr('class', 'bar-label')
-                            .attr('x', function(c) { return xScale(c.conf) + 2; })
-                            .attr('y', function(c) { return yScale(c.val) + 10; })
+                            .attr('x', function(c) { return xScale(c.conf) + (xScale.bandwidth() / 2); })
+                            .attr('y', function(c) { return yScale(c.val) - 5; })
                             .attr('stroke', 'none')
-                            .attr('fill', 'white')
+                            .attr('text-anchor', 'middle')
+                            .attr('fill', 'black')
                             .style("font-family", "helvetica")
                             .style("font-size", "9px")
                             .text(function(c) { 
@@ -587,7 +663,7 @@
                         .attr("text-anchor", "middle")
                         .style("font-family", "helvetica")
                         .style("font-size", "12px")
-                        .text(d.accolades);
+                        .text(title_map[d.accolades]);
 
                     // call axis just on this SVG
                     // otherwise calling it 5 times for 5 metrics...
@@ -601,14 +677,84 @@
 
         function makeLines() {
 
+            // Highlight the specie that is hovered
+            var highlight = function(d){
+
+                let conf;
+
+                if(d.values) {
+                    conf = d.values[0].Conf_Clean;
+                } else {
+                    conf = d.conf;
+                }
+
+                if(conf == 'Big Ten') {
+                    conf = 'Big_Ten';
+                } else if(conf == 'Big 12') {
+                    conf = 'Big_12';
+                }
+
+                // first every group turns grey
+                d3.selectAll("path.change")
+                    .transition().duration(200)
+                    .attr("opacity", ".05");
+
+                d3.selectAll("circle.change")
+                    .transition().duration(200)
+                    .attr("opacity", ".05");
+
+                // Second the hovered specie takes its color
+                d3.selectAll("path." + conf)
+                    .transition().duration(200)
+                    .attr("opacity", "1");
+                    // .attr("stroke", "black")
+                    // .attr("stroke-width", "2px");
+                d3.selectAll("circle." + conf)
+                    .transition().duration(200)
+                    .attr("opacity", "1");
+
+            }
+
+            // Unhighlight
+            var doNotHighlight = function() {
+                d3.selectAll("path")
+                    .transition().duration(200)
+                    .attr("opacity", "1");
+                    // .attr("stroke", "none");
+                d3.selectAll("circle")
+                    .transition().duration(200)
+                    .attr("opacity", "1");
+            }
+
+            let title_map = {
+                'MVP': 'MVP',
+                'SB_MVP': 'Super Bowl MVP',
+                'SB_WIN': 'Super Bowl Win',
+                'OPOY': 'OPOY',
+                'OROY': 'OROY',
+                'DPOY': 'DROY',
+                'DROY': 'DROY',
+                'Pro_Bowl': 'Pro Bowl',
+                'First_AP': 'First Team All Pro',
+                'Second_AP': 'Second Team All Pro'
+            }
+
             // Set the dimensions and margins of the graph
-            const margin = { top: 40, right: 20, bottom: 20, left: 40 },
+            const margin = { top: 40, right: 40, bottom: 40, left: 40 },
                 width = 400 - margin.left - margin.right,
                 height = 200 - margin.top - margin.bottom;
 
             let accolades = ['First_AP', 'Second_AP', 'Pro_Bowl'];
 
             d3.csv("python/results/total/college_year_lines.csv", function(data) {
+
+                let confs = [
+                    {conf: 'ACC', color: '#013ca6'}, 
+                    {conf: 'Big 12', color: '#ef483e'}, 
+                    {conf: 'Big Ten', color: '#0088CE'},
+                    {conf: 'SEC', color: '#ffd046'},
+                    {conf: 'Pac12', color: '#04223f'},
+                    {conf: 'Other', color: '#808080'}];
 
                 data.forEach((d) =>{
                     if(d.Conf_Clean == 'ACC') {
@@ -627,8 +773,8 @@
                 });
 
                 // Add X axis
-                var x = d3.scaleLinear()
-                    .domain([2010, 2020])
+                var x = d3.scaleTime()
+                    .domain([new Date('2010'), new Date('2020/01')])
                     .range([0, width]);
 
                 var y = d3.scaleLinear()
@@ -637,16 +783,13 @@
 
                 // create a separate SVG object for each group
                 // class each SVG with parameter from metrics
-                var svg = d3.select('#svg-container5').selectAll('svg')
+                var svg = d3.select('#svg-small-lines').selectAll('svg')
                     .data(accolades)
                     .enter()
                         .append('svg')
                             .attr("class", function(d) {return d + "_lines";})
                             .attr("width", width + margin.left + margin.right)
-                            .attr("height", height + margin.top + margin.bottom)
-                        .append("g")
-                            .attr("transform",
-                                "translate(" + margin.left + "," + margin.top + ")");;
+                            .attr("height", height + margin.top + margin.bottom);
 
                 var groups = d3.nest()
                     .key(function(d) {return d.Conf_Clean;})
@@ -658,40 +801,99 @@
                         return parseInt(d[a]);
                     }))]);
 
-                    d3.select("svg." + a + "_lines").selectAll(".line")
+                    cursvg = d3.select("svg." + a + "_lines")
+                        .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+
+                    cursvg.selectAll(".line")
                         .data(groups)
                         .enter()
                             .append("path")
+                            .attr('class', (d) => {
+                                if(d.values[0].Conf_Clean == 'Big Ten') {
+                                    return 'change Big_Ten';
+                                } else if(d.values[0].Conf_Clean == 'Big 12') {
+                                    return 'change Big_12';
+                                } else {
+                                    return 'change ' + d.values[0].Conf_Clean;
+                                }
+                            })
                             .attr("fill", "none")
                             .attr("stroke", function(d){ return d.values[0].color })
                             .attr("stroke-width", 1.5)
                             .attr("d", function(d){
                                 return d3.line()
                                     .x(function(d) { 
-                                        return x(d.Year); })
+                                        return x(new Date(d.Year)); })
                                     .y(function(d) { return y(+d[a]); })
                                     (d.values)
                             });
 
-                    d3.select("svg." + a + "_lines")
-                        .append("g")
+                    cursvg.append("g")
                         .attr("transform", "translate(0," + height + ")")
-                        .call(d3.axisBottom(x).ticks(5));
+                        .call(d3.axisBottom(x).ticks(5).tickSize(0).tickPadding(15));
 
-                    d3.select("svg." + a + "_lines")
-                        .append("g")
-                        .call(d3.axisLeft(y).ticks(5));
+                    cursvg.append("g")
+                        .call(d3.axisLeft(y).ticks(4).tickSize(0).tickPadding(15).tickFormat(d3.format("d")));
 
-                    d3.select("svg." + a + "_lines")
-                        .append("text")
+                    cursvg.append("text")
                         .attr("x", width/2)
-                        .attr("y", 0 + (margin.top / 2))
+                        .attr("y", -5)
                         .attr("text-anchor", "middle")
                         .style("font-family", "helvetica")
                         .style("font-size", "12px")
-                        .text(a);
+                        .text(title_map[a]);
 
-                })
+                });
+
+                let lastsvg = d3.select("svg." + accolades[accolades.length - 1] + "_lines");
+
+                lastsvg.attr("width", width + margin.left + margin.right + 100)
+
+                // make legend 
+                lastsvg.selectAll('.legend-circle')
+                    .data(confs)
+                    .enter()
+                        .append('circle')
+                        .attr("class", (d) => {
+                            if(d.conf == 'Big Ten') {
+                                return 'legend-circle change Big_Ten';
+                            } else if(d.conf == 'Big 12') {
+                                return 'legend-circle change Big_12';
+                            } else {
+                                return 'legend-circle change ' + d.conf;
+                            }
+                        })
+                        .attr('r', 5)
+                        .attr('cx', width + margin.right + 20)
+                        .attr('cy', function (d, i) {
+                            return 20 + (20 * i);
+                        })
+                        .style('fill', function (d) {
+                            return d.color;
+                        })
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
+
+                lastsvg.selectAll('.legend-text')
+                    .data(confs)
+                    .enter()
+                        .append("text")
+                        .attr('class', 'legend-text')
+                        .attr("x", width + margin.right + 40)
+                        .attr("y", function (d, i) {
+                            return 20 + (20 * i);
+                        })
+                        .text(function (d) {
+                            return d.conf;
+                        })
+                        .style("font-size", "16px")
+                        .style("font-family", "Helvetica")
+                        .attr("alignment-baseline","middle")
+                        .attr('fill', 'black')
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
             });
 
 
@@ -699,13 +901,70 @@
 
         function makeWeightedLines() {
 
-            d3.select("#svg-container6").selectAll("*").remove();
+            d3.select("#svg-weighted-lines").selectAll("*").remove();
             // Set the dimensions and margins of the graph
-            const margin = { top: 40, right: 40, bottom: 40, left: 40 },
-                width = 600 - margin.left - margin.right,
+            const margin = { top: 40, right: 150, bottom: 40, left: 40 },
+                width = 800 - margin.left - margin.right,
                 height = 250 - margin.top - margin.bottom;
 
             d3.csv("python/results/total/college_year_lines.csv", function(data) {
+
+                // Highlight the specie that is hovered
+                var highlight = function(d){
+
+                    let conf;
+
+                    if(d.values) {
+                        conf = d.values[0].Conf_Clean;
+                    } else {
+                        conf = d.conf;
+                    }
+
+                    if(conf == 'Big Ten') {
+                        conf = 'Big_Ten';
+                    } else if(conf == 'Big 12') {
+                        conf = 'Big_12';
+                    }
+
+                    // first every group turns grey
+                    d3.selectAll("path.change")
+                        .transition().duration(200)
+                        .attr("opacity", ".05");
+
+                    d3.selectAll("circle.change")
+                        .transition().duration(200)
+                        .attr("opacity", ".05");
+
+                    // Second the hovered specie takes its color
+                    d3.selectAll("path." + conf)
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                        // .attr("stroke", "black")
+                        // .attr("stroke-width", "2px");
+                    d3.selectAll("circle." + conf)
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                    
+                }
+
+                // Unhighlight
+                var doNotHighlight = function() {
+                    d3.selectAll("path")
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                        // .attr("stroke", "none");
+                    d3.selectAll("circle")
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                }
+
+                let confs = [
+                    {conf: 'ACC', color: '#013ca6'}, 
+                    {conf: 'Big 12', color: '#ef483e'}, 
+                    {conf: 'Big Ten', color: '#0088CE'},
+                    {conf: 'SEC', color: '#ffd046'},
+                    {conf: 'Pac12', color: '#04223f'},
+                    {conf: 'Other', color: '#808080'}];
 
                 data.forEach((d) =>{
                     if(d.Conf_Clean == 'ACC') {
@@ -736,7 +995,7 @@
                     .key(function(d) {return d.Conf_Clean;})
                     .entries(data);
 
-                var svg = d3.select("#svg-container6")
+                var svg = d3.select("#svg-weighted-lines")
                     .append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
@@ -744,49 +1003,118 @@
                         .attr("transform",
                             "translate(" + margin.left + "," + margin.top + ")");
 
+                
+
                 // Add X axis --> it is a date format
-                var x = d3.scaleLinear()
-                    .domain([2010, 2020])
+                var x = d3.scaleTime()
+                    .domain([new Date('2010'), new Date('2020/01')])
                     .range([ 0, width ]);
                 svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).ticks(5));
+                    .call(d3.axisBottom(x).ticks(5).tickSize(0).tickPadding(15));
 
                 // Add Y axis
                 var y = d3.scaleLinear()
                     .domain([0, d3.max(data, function(d) { return +d.score; })])
                     .range([ height, 0 ]);
                 svg.append("g")
-                    .call(d3.axisLeft(y).ticks(5));
+                    .call(d3.axisLeft(y).ticks(4).tickSize(0).tickPadding(15));
 
                 // Draw the line
                 svg.selectAll(".line")
                     .data(groups)
                     .enter()
                     .append("path")
+                        .attr('class', (d) => {
+                            if(d.values[0].Conf_Clean == 'Big Ten') {
+                                return 'change Big_Ten';
+                            } else if(d.values[0].Conf_Clean == 'Big 12') {
+                                return 'change Big_12';
+                            } else {
+                                return 'change ' + d.values[0].Conf_Clean;
+                            }
+                        })
                         .attr("fill", "none")
                         .attr("stroke", function(d){ return d.values[0].color })
                         .attr("stroke-width", 1.5)
                         .attr("d", function(d){
                         return d3.line()
-                            .x(function(d) { return x(d.Year); })
+                            .x(function(d) { return x(new Date(d.Year)); })
                             .y(function(d) { return y(+d.score); })
                             (d.values)
-                        });
+                        })
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
 
                 svg.append("text")
                     .attr("x", width/2)
-                    .attr("y", 0 + (margin.top / 2))
+                    .attr("y", -5)
                     .attr("text-anchor", "middle")
                     .style("font-family", "helvetica")
                     .style("font-size", "12px")
                     .text("Weighted Scores");
 
+                // make legend 
+                svg.selectAll('.legend-circle')
+                    .data(confs)
+                    .enter()
+                        .append('circle')
+                        .attr("class", (d) => {
+                            if(d.conf == 'Big Ten') {
+                                return 'legend-circle change Big_Ten';
+                            } else if(d.conf == 'Big 12') {
+                                return 'legend-circle change Big_12';
+                            } else {
+                                return 'legend-circle change ' + d.conf;
+                            }
+                        })
+                        .attr('r', 5)
+                        .attr('cx', width + 20)
+                        .attr('cy', function (d, i) {
+                            return 10 + (20 * i);
+                        })
+                        .style('fill', function (d) {
+                            return d.color;
+                        })
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
+
+                svg.selectAll('.legend-text')
+                    .data(confs)
+                    .enter()
+                        .append("text")
+                        .attr('class', 'legend-text')
+                        .attr("x", width + 40)
+                        .attr("y", function (d, i) {
+                            return 10 + (20 * i);
+                        })
+                        .text(function(d) {
+                            return d.conf;
+                        })
+                        .style("font-size", "16px")
+                        .style("font-family", "Helvetica")
+                        .attr("alignment-baseline","middle")
+                        .attr('fill', 'black')
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
             });
 
         }
 
         function makeSECBubble() {
+
+            let title_map = {
+                'MVP': 'MVP',
+                'SB_MVP': 'Super Bowl MVP',
+                'SB_WIN': 'Super Bowl Win',
+                'OPOY': 'OPOY',
+                'OROY': 'OROY',
+                'DPOY': 'DROY',
+                'DROY': 'DROY',
+                'Pro_Bowl': 'Pro Bowl',
+                'First_AP': 'First Team All Pro',
+                'Second_AP': 'Second Team All Pro'
+            }
 
             function sumValue(group) {
                 return d3.sum(group, function(d) {
@@ -796,15 +1124,59 @@
 
             childrenAccess = ([key, value]) => value.size && Array.from(value)
 
-            const margin = {top: 30, right: 150, bottom: 30, left: 30};
+            const margin = {top: 0, right: 200, bottom: 0, left: 50};
                 const width = 1000 - margin.left - margin.right;
-                const height = 1000 - margin.top - margin.bottom;
+                const height = 750 - margin.top - margin.bottom;
 
             d3.csv("python/results/total/sec_bubble.csv", function(data) {
 
                 let accolades = ["First_AP", "Second_AP", "Pro_Bowl", "MVP", "SB_MVP", "SB_WIN", "OPOY", "DPOY", "OROY", "DROY"];
 
                 let color = d3.scaleOrdinal().domain(accolades).range(d3.schemeTableau10);
+
+                // Highlight the specie that is hovered
+                var highlight = function(d){
+
+                    let acc
+                    
+                    if(d.data) {
+                        acc = d.data[0];
+                    } else {
+                        acc = d;
+                    }
+                    
+                    if(accolades.includes(acc)) {
+                        // first every group turns grey
+                        d3.selectAll("circle.change")
+                            .transition().duration(200)
+                            .attr("opacity", ".05");
+
+                        d3.selectAll("text.change")
+                            .transition().duration(200)
+                            .attr("opacity", ".05");
+
+                        // Second the hovered specie takes its color
+                        d3.selectAll("circle." + acc)
+                            .transition().duration(200)
+                            .attr("opacity", "1");
+                            // .attr("stroke", "black")
+                            // .attr("stroke-width", "2px");
+                        d3.selectAll("text." + acc)
+                            .transition().duration(200)
+                            .attr("opacity", "1");
+                    }
+                }
+
+                // Unhighlight
+                var doNotHighlight = function() {
+                    d3.selectAll("circle")
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                        // .attr("stroke", "none");
+                    d3.selectAll("text")
+                        .transition().duration(200)
+                        .attr("opacity", "1");
+                }
 
                 data.forEach(d => {
                     if(d.Pos == 'OLB' || d.Pos == 'ILB') {
@@ -830,11 +1202,11 @@
 
                 let packed = d3.pack()
                     .size([width, height])
-                    .padding(3);
+                    .padding(5);
 
                 packed(root);
                 
-                var svg = d3.select("#svg-container7")
+                var svg = d3.select("#svg-sec-bubble")
                     .append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
@@ -847,6 +1219,13 @@
                     .data(root.descendants())
                     .enter()
                     .append('circle')
+                        .attr('class', (d) => {
+                            if(d.depth == 2) {
+                                return "change " + d.data[0];
+                            } else {
+                                return 'no-change';
+                            }
+                        })
                         .attr('r', (d) => {
                             return d.r;
                         })
@@ -863,12 +1242,21 @@
                                 return '#D3D3D3';
                             }
                         })
-                        .attr('opacity', '1');
+                        .attr('opacity', '1')
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
 
                 svg.selectAll('text')
                     .data(root.descendants())
                     .enter()
                     .append('text')
+                        .attr('class', (d) => {
+                            if(d.depth == 2) {
+                                return 'change ' + d.data[0];
+                            } else {
+                                return 'no-change';
+                            }
+                        })
                         .attr('x', d => d.x - 5)
                         .attr('y', (d) => {
                             if(d.depth == 2) {
@@ -893,22 +1281,28 @@
                             } else {
                                 return '16px';
                             }
-                        });
+                        })
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
 
                 // make legend 
                 svg.selectAll('.legend-circle')
                     .data(accolades)
                     .enter()
                         .append('circle')
-                        .attr("class", 'legend-circle')
+                        .attr("class", (d) => {
+                            return 'legend-circle change ' + d;
+                        })
                         .attr('r', 8)
                         .attr('cx', width + 20)
                         .attr('cy', function (d, i) {
-                            return 100 + (30 * i);
+                            return 200 + (30 * i);
                         })
                         .style('fill', function (d) {
                             return color(d);
-                        });
+                        })
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
 
                 svg.selectAll('.legend-text')
                     .data(accolades)
@@ -917,14 +1311,16 @@
                         .attr('class', 'legend-text')
                         .attr("x", width + 40)
                         .attr("y", function (d, i) {
-                            return 100 + (30 * i);
+                            return 200 + (30 * i);
                         })
                         .text(function (d) {
-                            return d;
+                            return title_map[d];
                         })
                         .style("font-size", "16px")
                         .style("font-family", "Helvetica")
-                        .attr("alignment-baseline","middle");
+                        .attr("alignment-baseline","middle")
+                        .on("mouseover", highlight)
+                        .on("mouseleave", doNotHighlight);
 
             });
         }
