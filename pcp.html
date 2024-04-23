@@ -188,9 +188,9 @@
         </div>
         <div id="content-weighted-lines">
             <div class="sliders">
-                <input type="range" id="First_AP" min="0" max="4" value="3"><label for="First_AP">1st Team AP</label>
-                <input type="range" id="Second_AP" min="0" max="4" value="2"><label for="Second_AP">2nd Team AP</label>
-                <input type="range" id="Pro_Bowl" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
+                <input type="range" id="First_AP_line" min="0" max="4" value="3"><label for="First_AP">1st Team AP</label>
+                <input type="range" id="Second_AP_line" min="0" max="4" value="2"><label for="Second_AP">2nd Team AP</label>
+                <input type="range" id="Pro_Bowl_line" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
                 <button class="update" type="button" onclick="makeWeightedLines()">Update Chart</button>
             </div>
             <div id="svg-weighted-lines"></div>
@@ -1387,9 +1387,9 @@
                     }
                 });
 
-                let First_AP = document.getElementById("First_AP").value;
-                let Second_AP = document.getElementById("Second_AP").value;
-                let Pro_Bowl = document.getElementById("Pro_Bowl").value;
+                let First_AP = document.getElementById("First_AP_line").value;
+                let Second_AP = document.getElementById("Second_AP_line").value;
+                let Pro_Bowl = document.getElementById("Pro_Bowl_line").value;
 
                 data.forEach((d) => {
                     d.score = (First_AP * d.First_AP) + (Second_AP * d.Second_AP) + (Pro_Bowl * d.Pro_Bowl);
