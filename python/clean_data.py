@@ -178,5 +178,18 @@ def college_year_lines():
     total_df = total_df.groupby(['Conf_Clean', 'Year']).sum().reset_index()
     total_df.to_csv("results/total/college_year_lines.csv", index=False)
 
+def sec_bubble_data():
+    total_df = pd.read_csv("results/total/joindf_total.csv")
+    total_df = total_df[total_df['Conf_Clean'] == 'SEC']
+    total_df = total_df[['Conf_Clean', 'Pos', 'MVP', 'SB_MVP', 'SB_WIN', 'OPOY', 'DPOY', 'OROY', 'DROY', 'First_AP', 'Second_AP', 'Pro_Bowl']]
+    new_df = pd.DataFrame(columns=['Pos', 'Accolade', 'value'])
 
-college_year_lines()
+    accolades = ['MVP', 'SB_MVP', 'SB_WIN', 'OPOY', 'DPOY', 'OROY', 'DROY', 'First_AP', 'Second_AP', 'Pro_Bowl']
+    for index, row in total_df.iterrows():
+        for a in accolades:
+            new_df.loc[len(new_df)] = [row['Pos'], a, row[a]]
+
+    new_df.to_csv("results/total/sec_bubble.csv", index=False)
+
+
+sec_bubble_data()
