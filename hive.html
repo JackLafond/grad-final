@@ -60,6 +60,8 @@
     body {
         display: flex;
         flex-direction: column;
+        margin-left: 10%;
+        margin-right: 10%;
     }
 
     .main {
@@ -158,10 +160,16 @@
         function makeHive() {
 
             d3.select("#svg-container").selectAll("*").remove();
-            var width = 1000,
-            height = 750,
-            innerRadius = 45,
-            outerRadius = [300, 600, 375];
+
+            var width = 900,
+            height = 700,
+            innerRadius = 30,
+            outerRadius = [250, 550, 325];
+
+            // var width = 1000,
+            // height = 750,
+            // innerRadius = 45,
+            // outerRadius = [300, 600, 375];
 
             let collegeConfs = ['SEC', 'ACC', 'Pac12', 'Big 12', 'Big Ten', 'Other'];
             let collegeColors = ['#ffd046', '#013ca6', '#04223f', '#ef483e', '#0088CE', '#808080'];
@@ -342,10 +350,10 @@
                     .enter()
                     .append('circle')
                     .attr("class", 'legend-circle')
-                    .attr('r', 10)
+                    .attr('r', 5)
                     .attr('cx', width * .6)
                     .attr('cy', function (d) {
-                        return 100 + (30 * d.numb);
+                        return 100 + (20 * d.numb);
                     })
                     .style('fill', function (d) {
                         return d.color;
@@ -358,12 +366,12 @@
                     .attr('class', 'legend-text')
                     .attr("x", width * .6 + 20)
                     .attr("y", function (d) {
-                        return 100 + (30 * d.numb);
+                        return 100 + (20 * d.numb);
                     })
                     .text(function (d) {
                         return d.conf;
                     })
-                    .style("font-size", "15px")
+                    .style("font-size", "12px")
                     .style("font-family", "Helvetica")
                     .attr("alignment-baseline","middle");
 
