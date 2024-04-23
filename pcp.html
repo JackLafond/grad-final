@@ -14,27 +14,57 @@
 
     <style>
 
-        h3 {
-            margin-top: 100px;
-        }
-
-        p {
-            margin-top: 30px;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
 
         .axis {
-          opacity: 0.4;
-        }
-        
-        .axis:hover {
-          opacity: 1;
+            stroke: #000;
+            stroke-width: 1.5px;
         }
 
-        #content-weighted-lines {
+        .node {
+            stroke: #000;
+        }
+
+        .link {
+            fill: none;
+            stroke-width: 1.5px;
+            stroke-opacity: 0.25;
+        }
+
+        .link.turnedOn {
+            stroke-width: 2px;
+            stroke-opacity : 0.8;
+        }
+
+        .link.turnedOff {
+            stroke-opacity: 0.05;
+            stroke-width: 1px;
+        }
+
+        .node.turnedOn {
+            stroke: red;
+            stroke-width: 3px;
+        }
+
+        #player-context {
             display: flex;
-            flex-direction: row;
+            justify-content: space-evenly;
+            align-content: flex-start;
+        }
+
+        #context {
+            display: flex; 
+            flex-direction: column;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        #main-hive-plot {
+            display: flex;
         }
 
         .sliders {
@@ -51,11 +81,29 @@
             margin-top: 20px;
         }
 
-        body {
+        li {
             display: flex;
-            flex-direction: column;
-            margin-left: 10%;
-            margin-right: 10%;
+            justify-content: space-between;
+        }
+
+        h4 {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        p {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .spacer {
+            margin-top: 100px;
+        }
+
+        #content-weighted-lines {
+            display: flex;
+            flex-direction: row;
         }
 
     </style>
@@ -74,14 +122,66 @@
             </div>
         </nav>
 
+        <div id="content-hive-plot">
+
+            <h3 class="spacer">Hive Plot</h3>
+
+            <label>Select a Year</label>
+            <select id="select_year" onchange="makeHive()">
+                <option value="2010">2010</option>
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="total">Total</option>
+            </select>
+
+            <div id="main-hive-plot">
+                <div class="sliders">
+                    <input type="range" id="MVP" min="0" max="4" value="1"><label for="MVP">MVP</label>
+                    <input type="range" id="SB_MVP" min="0" max="4" value="1"><label for="SB_MVP">SB MVP</label>
+                    <input type="range" id="SB_WIN" min="0" max="4" value="1"><label for="SB_WIN">SB Win</label>
+                    <input type="range" id="OPOY" min="0" max="4" value="1"><label for="OPOY">OPOY</label>
+                    <input type="range" id="DPOY" min="0" max="4" value="1"><label for="DPOY">DPOY</label>
+                    <input type="range" id="OROY" min="0" max="4" value="1"><label for="OROY">OROY</label>
+                    <input type="range" id="DROY" min="0" max="4" value="1"><label for="DROY">DROY</label>
+                    <input type="range" id="First_AP" min="0" max="4" value="1"><label for="First_AP">1st Team AP</label>
+                    <input type="range" id="Second_AP" min="0" max="4" value="1"><label for="Second_AP">2nd Team AP</label>
+                    <input type="range" id="Pro_Bowl" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
+                    <button class="update" type="button" onclick="makeHive()">Update Hive</button>
+                </div>
+
+                <div id="svg-hive-plot"></div>
+
+                <div id="context">
+                    <div id="node-context">
+                        <h3 id="node-info">Context: </h3>
+                    </div>
+
+                    <div id="player-context">
+                        <ul id="player-list"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <p>This Hive plot shows the total draft profile by selected year. Each arc represents an individual player. Their arc passes through the college conference they were drafted from, the team that drafted them, and their current accolade score. The accolade score is aggregated by the weights on the left hand side. You can customize these weights to put more or less value on different NFL awards. Each slider ranges from 0 to 4 and the default for each is 1.</p>
+
+        </div>
+
         <div id="content-small-multiples">
-            <h3>Small Multiples</h3>
+            <h3 class="spacer">Small Multiples</h3>
             <div id="svg-small-multiples"></div>
             <p>In looking at these small multiples it is important to consider the sample sizes of these accolades. For example awards like the MVP are only given to one player each year, and are mostly a QB biased position in the current landscape of the NFL. It is also important to consider that these aggregations are only for players who were drafted between 2010 and 2020, so players like Tom Brady and Aaron Rodgers are not inlcuded. As a result some of these less frequent and position specific awards are not the best for comparisons. Instead we should focus primarily on the follwoing three awards; Firt Team All Pro, Second Team All Pro, and Pro Bowl. For First and Second Team All Pro a player at each position is picked, making it a much more frequent award and non position biased. The Pro Bowl is an NFL run game at the end of the season which invites the game's all-stars based on player, coach, and fan voting. Like the All Pro awards the Pro Bowl invites players of all positions, and if a player declines to join like in the case that they are playing in the Super Bowl, then replacements are found making this another good award to represent general success across the NFL.</p>
             <p>Considering these three accolades, it is clear that the SEC dominates all other college conferences as their drafted players from 2010-2020 have accumulated the most First and Second Team All Pro, and Pro Bowl awards, doubling most other conferences except for the "Other" grouping. Has this always been the trend though? In the next section we dive into the accolades by year to see the time trends of college conferences and their players' accolades.</p>
         </div>
         <div id="content-small-lines">
-            <h3>Accolades Over Time</h3>
+            <h3 class="spacer">Accolades Over Time</h3>
             <div id="svg-small-lines"></div>
             <p>These line charts show the total accolades for NFL draftees colored by college conferences, and charted over draft years. Since the Y valeus for each year represent the total accolades for that college conference's draft class for that specific year we should expect to see a generally decreasing trend for all the lines as players drafted in more recent years like 2020 have had less time to accumulate awards when compared to players drafted in earlier years who have had more time in the NFL.</p>
             <p>In the First Team All Pro chart there is no clear winner and each conference generally deacreased from 2010 to 2020. However, in the Second Team All Pro and Pro Bowl Charts is where the SEC starts to shine, as in both charts the SEC consitently charts more accoaldes than all other college conferences except for some occasional spikes. Anohter important note is that in each of these charts the SEC decreaseed less than most other college conferences, and in the case of Second Team All Pro, they were close to a horizontal trend. These two findings suggest that the SEC produces more NFL ready players each year than otehr conferences, and the smaller decrease suggests that in more recent years their players have actually become more NFL ready than in the past as their accolade scores are not decreasing as mmuch as other conferences.</p>
@@ -97,7 +197,7 @@
             <p>Included here is a combined weighted score chart that aggregates each of the three awards based on their weights. The default weighting is 3, 2, and 1 for First Team All Pro, Second Team All Pro and Pro Bowl, however you can change these weights as you see fit, each scale ranges from 0 to 4.</p>
         </div>
         <div id="content-sec-bubble">
-            <h3>SEC Accolade Bubble Chart</h3>
+            <h3 class="spacer">SEC Accolade Bubble Chart</h3>
             <p>From the previous charts it is clear that the SEC dominates other conferences in terms of producing NFL ready players, but what positions is it best at producing? Since First and Second Team All Pro, and Pro Bowl awards go to every position it is hard to see where on the field the SEC schools perform the bast. The following visualization shows a hierarvhy bubble charts that displays the accolades by position. The area of each circle is encoded by the total number of accolades for the circle allowing for comparisons within and across positions.</p>
             <div id="svg-sec-bubble"></div>
             <p>Suprisingly, the SEC does not produce nearly as many good QBs as it does for other positions. Another interesting finding is that for most positions, they have more Pro Bowls than Second Team All Pros and more Second Team All Pros than First Team All Pros. This is generally expected as First Team All Pro is the highest accolade among these three awards, However for Cornerback and Safety, these positions saw more First Team All Pros than double their Second Team All Pros. This suggests that the SEC is not just producing very good Cornerbacks and Safeties, but they are producing some of the leagues most elite defensive skill position players.</p>
@@ -105,10 +205,305 @@
 
     </body>
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
-    <!-- <script src="https://d3js.org/d3.v7.min.js"></script> -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://d3js.org/d3.hive.v0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
+
+        function makeHive() {
+
+            d3.select("#svg-hive-plot").selectAll("*").remove();
+
+            var width = 900,
+            height = 700,
+            innerRadius = 30,
+            outerRadius = [250, 550, 325];
+
+            // var width = 1000,
+            // height = 750,
+            // innerRadius = 45,
+            // outerRadius = [300, 600, 375];
+
+            let collegeConfs = ['SEC', 'ACC', 'Pac12', 'Big 12', 'Big Ten', 'Other'];
+            let collegeColors = ['#ffd046', '#013ca6', '#04223f', '#ef483e', '#0088CE', '#808080'];
+            let collegeData = [];
+            for(let i = 0; i < 6; i++) {
+                collegeData.push({'conf': collegeConfs[i], 'color': collegeColors[i], 'numb': i});
+            }
+
+            var angle = [-Math.PI * .25, Math.PI * .5, Math.PI * 1.25];
+            let radius = [];
+            outerRadius.forEach(rad => {
+                radius.push(d3.scaleLinear().range([innerRadius, rad]))
+            });
+            let pathcolor = d3.scaleOrdinal()
+                .range(collegeColors)
+                .domain(collegeConfs);
+
+            let year = document.getElementById('select_year').value;
+            let nodefile = "python/results/" + year + "/hivenodes_" + year + ".csv";
+            let linkfile = "python/results/" + year + "/hivelinks_" + year + ".csv";
+
+            d3.queue()
+                .defer(d3.csv, nodefile)
+                .defer(d3.csv, linkfile)
+                .await(function(error, nodes, links) {
+
+                let MVP = document.getElementById("MVP").value;
+                let SB_MVP = document.getElementById("SB_MVP").value;
+                let SB_WIN = document.getElementById("SB_WIN").value;
+                let OPOY = document.getElementById("OPOY").value;
+                let DPOY = document.getElementById("DPOY").value;
+                let OROY = document.getElementById("OROY").value;
+                let DROY = document.getElementById("DROY").value;
+                let First_AP = document.getElementById("First_AP").value;
+                let Second_AP = document.getElementById("Second_AP").value;
+                let Pro_Bowl = document.getElementById("Pro_Bowl").value;
+
+                nodes.forEach(d => {
+                    if(d.axis == 2) {
+                        d.value = (d.MVP * MVP) + (d.SB_MVP * SB_MVP) + (d.SB_WIN * SB_WIN) + (d.OPOY * OPOY) + (d.DPOY * DPOY) + (d.OROY * OROY) + (d.DROY * DROY) + (d.First_AP * First_AP) + (d.Second_AP * Second_AP) + (d.Pro_Bowl * Pro_Bowl);
+                    }
+                });
+
+                let collegeConfs = Array.from(new Set(
+                    nodes.filter((d) => {
+                        return d.axis == 0;
+                    }).map((d) => d.value)));
+
+                const collegeConfScale = d3.scaleOrdinal()
+                    .range(d3.range(0,6))
+                    .domain(collegeConfs);
+
+                const collegeNumScale = d3.scaleLinear().range([0,1]).domain([0, 6]);
+
+                let teams = Array.from(new Set(
+                    nodes.filter((d) => {
+                        return d.axis == 1;
+                    }).map((d) => d.value)));
+
+                const teamScale = d3.scaleOrdinal()
+                    .range(d3.range(0,32))
+                    .domain(teams);
+
+                const teamNumScale = d3.scaleLinear().range([0,1]).domain([0, 32]);
+
+                var success = nodes.filter((d) => {
+                    return d.axis == 2;
+                    }).map((d) => parseInt(d.value));
+
+                const successScale = d3.scaleLinear().range([0,1]).domain(
+                    [d3.min(success), d3.max(success)]);
+
+                nodes.forEach(function(d) {
+                    d.x = parseInt(d.axis);
+                    if(d.axis == 0) {
+                        d.y = collegeNumScale(collegeConfScale(d.value));
+                    } else if (d.axis == 1) {
+                        d.y = teamNumScale(teamScale(d.value));
+                    } else {
+                        d.y = successScale(d.value);
+                    }
+                });
+
+                links.forEach(function(d) {
+                    d.source = nodes[d.from];
+                    d.target = nodes[d.to];
+                })
+
+                var svg = d3
+                .select("#svg-hive-plot")
+                    .append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", "translate(" + width / 3 + "," + height / 2 + ")");
+
+                svg
+                .selectAll(".axis")
+                .data(d3.range(3))
+                .enter()
+                    .append("line")
+                    .attr("class", "axis")
+                    //.transition().duration(2000)
+                    .attr("transform", function (d) {
+                        return "rotate(" + degrees(angle[d]) + ")";
+                    })
+                    .attr("x1", function (d) {
+                        return radius[d].range()[0];
+                    })
+                    .attr("x2", function (d) {
+                        return radius[d].range()[1];
+                    });
+
+                // draw links
+                svg
+                .selectAll(".link")
+                .data(links)
+                .enter()
+                    .append("path")
+                    .attr("class", "link")
+                    .attr(
+                        "d",
+                        d3.hive
+                        .link()
+                        .angle(function (d) {
+                            return angle[d.x];
+                        })
+                        .radius(function (d) {
+                            return radius[d.x](d.y);
+                        })
+                    )
+                    .style("stroke", function (d) {
+                        return pathcolor(d.source.conf);
+                    })
+                    .on("mouseover", function(d) {
+                        if(year == "total") {
+                            return false;
+                        } else {
+                            return linkMouseover(d);
+                        }
+                    })
+                    .on("mouseout", function(d) {
+                        if(year == "total") {
+                            return false;
+                        } else {
+                            return mouseout();
+                        }
+                    });
+
+                // draw nodes
+                svg
+                .selectAll(".node")
+                .data(nodes)
+                .enter()
+                    .append("circle")
+                    .attr("class", "node")
+                    .attr("transform", function (d) {
+                        return "rotate(" + degrees(angle[d.x]) + ")";
+                    })
+                    .attr("cx", function (d) {
+                        return radius[d.x](d.y);
+                    })
+                    .attr("r", 5)
+                    .style("fill", function (d) {
+                        if(d.x == 0) {
+                            return pathcolor(d.conf);
+                        }
+                        else {
+                            return 'black';
+                        }
+                    })
+                    .on("mouseover", nodeMouseover)
+                    .on("mouseout", mouseout);
+
+                // make legend 
+                svg.selectAll('.legend-circle')
+                    .data(collegeData)
+                    .enter()
+                        .append('circle')
+                        .attr("class", 'legend-circle')
+                        .attr('r', 5)
+                        .attr('cx', width * .6)
+                        .attr('cy', function (d) {
+                            return 100 + (20 * d.numb);
+                        })
+                        .style('fill', function (d) {
+                            return d.color;
+                        });
+
+                svg.selectAll('.legend-text')
+                    .data(collegeData)
+                    .enter()
+                        .append("text")
+                        .attr('class', 'legend-text')
+                        .attr("x", width * .6 + 20)
+                        .attr("y", function (d) {
+                            return 100 + (20 * d.numb);
+                        })
+                        .text(function (d) {
+                            return d.conf;
+                        })
+                        .style("font-size", "12px")
+                        .style("font-family", "Helvetica")
+                        .attr("alignment-baseline","middle");
+
+                // highlight link and connected nodes on mouseover
+                function linkMouseover(d) {
+                    svg
+                        .selectAll(".link")
+                        .classed("turnedOn", function (dl) {
+                        return dl === d;
+                        })
+                        .classed("turnedOff", function (dl) {
+                        return !(dl === d);
+                        });
+                    svg.selectAll(".node").classed("turnedOn", function (dl) {
+                        return dl === d.source || dl === d.target;
+                    });
+                }
+
+                // highlight node and connected links on mouseover
+                function nodeMouseover(d) {
+                    svg
+                        .selectAll(".link")
+                        .classed("turnedOn", function (dl) {
+                        return dl.source.value === d.value || dl.target.value === d.value;
+                        })
+                        .classed("turnedOff", function (dl) {
+                        return !(dl.source.value === d.value || dl.target.value === d.value);
+                        });
+                    d3.select(this).classed("turnedOn", true);
+                    text = document.getElementById("node-info");
+                    if(d.x == 0) {
+                        text.innerHTML = text.innerHTML + "College Conf - " + d.value;
+                    } else if(d.x == 1) {
+                        text.innerHTML = text.innerHTML + "Team - " + d.value;
+                    } else if(d.x == 2) {
+                        text.innerHTML = text.innerHTML + "Accolade Score - " + d.value;
+                        let players = [];
+                        svg.selectAll(".node").filter((dn) => {
+                            return dn.value == d.value;
+                        }).each((dn) => {
+                            players.push({Player: dn.Player, Pos: dn.Pos, Team: dn.Team, College: dn.College});
+                        });
+                        list = document.getElementById("player-list");
+                        for(let i = 0; i < players.length && i < 5; i++) {
+                            let cur = players[i];
+                            let entry = document.createElement('li');
+                            let player = document.createElement('h4'), 
+                                pos = document.createElement('h4'), 
+                                team = document.createElement('h4'),
+                                college = document.createElement('h4');
+                            player.innerHTML = cur.Player;
+                            pos.innerHTML = cur.Pos;
+                            team.innerHTML = cur.Team;
+                            college.innerHTML = cur.College;
+                            entry.appendChild(player);
+                            entry.appendChild(pos);
+                            entry.appendChild(team);
+                            entry.appendChild(college);
+                            list.appendChild(entry);
+                        }
+                    }
+                }
+
+                // clear highlighted nodes or links
+                function mouseout() {
+                    svg.selectAll(".turnedOn").classed("turnedOn", false);
+                    svg.selectAll(".turnedOff").classed("turnedOff", false);
+                    document.getElementById("node-info").innerHTML = 'Context: ';
+                    document.getElementById("player-list").innerHTML = '';
+                }
+
+                function degrees(radians) {
+                    return (radians / Math.PI) * 180 - 90;
+                }
+
+            });
+
+        }
 
         function makePosPCP() {
 
@@ -1339,6 +1734,7 @@
         // makePosPCP();
         // makeConfPCP();
         // makeConfBars();
+        makeHive();
         makeSmallMultiples();
         makeLines();
         makeWeightedLines();
