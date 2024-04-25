@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Other Visualizations</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <style>
+        .chart-container {
+            margin-bottom: 50px;
+        }
+    </style>
+    <link href="styles/styles.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <header>
+		<h1>NFL Draft Visual</h1>
+	</header>
+	
+	<nav tabindex="0">
+		<div class="menu_dropdown">
+			<p><a href="index.html">Home</a></p>
+			<p><a href="ProcessBook.html">Process Book</a></p>
+			<p><a href="Presentation.html">Presentation</a></p>
+			<p><a href="HiveScroll.html">Hive Intro</a></p>
+			<p><a href="DraftAnalysis.html">Draft Analysis</a></p>
+			<p><a href="Sankey.html">Sankey</a></p>
+			<p class="thislink">Other Vis</p>
+		</div>
+	</nav>
+
+    <main>
+
+        <h2>Other Visualizations</h2>
+        <p>This page includes other visualizations for our dataset that we implemented but chose not to use for our main story. We have included them here so that you can still view them and assess their value to you.</p>
+
+        <div class="chart-container">
+            <h4>Conference-Award Arc Diagram</h4>
+            <p class="chart-subtitle">This visualization displays an arc diagram that connects college conference to three different awards. These awards are 'First Team All-Pro', 'Second Team All-Pro', and 'Pro Bowl'. The arc size is determined by the sum of awards received by players drafted out of the selected conference.</p>
+            <select id="conferenceSelect1"></select>
+            <div id="my_dataviz1"></div>
+        </div>
+
+        <div class="chart-container">
+            <h4>Position-Award Arc Diagram</h4>
+            <p class="chart-subtitle">This visualization displays an arc diagram that connects player position to various different awards. The arc size is determined by the sum of awards received by players of the selected position.</p>
+            <select id="positionSelect2"></select>
+            <div id="my_dataviz2"></div>
+        </div>
+
+        <div class="chart-container">
+            <h4>Position-Related Awards PCP</h4>
+            <p class="chart-subtitle">This visualization displays a Parallel Coordinate Plot of the possible NFL awards that players have the potential to win. Players were colored by their primary position. Highlighting a line will cause all of the other position lines to fade into the background.</p>
+            <div id="svg-container1"></div>
+        </div>
+
+        <div class="chart-container">
+            <h4>Conference-Related Awards PCP</h4>
+            <p class="chart-subtitle">This visualization displays a Parallel Coordinate Plot of the possible NFL awards that players have the potential to win. Players were colored by their college conference. Highlighting a line will cause all of the other conference lines to fade into the background.</p>
+            <div id="svg-container2"></div>
+        </div>
+
+        <div class="chart-container">
+            <h4>Team Spider Charts</h4>
+            <p class="chart-subtitle">This visualuzation shows the spider charts we developed for each NFL team. For each team their chart displays the total number of players drafted from each college conference.</p>
+            <div id="spider-charts-team"></div>
+        </div>
+
+        <div class="chart-container">
+            <h4>Draft Scatter Plots</h4>
+            <p class="chart-subtitle">This visualization shows the scatter plots we developed for each round of the NFL draft aggregated across all years. For each round the a players height is determined by pick number, and their x axis is determined by their total accolades. So a player like Patrick Mahomes will be on the far right of the screen as he has won many awards so far. Hovering over a dot, the players info will be displayed.</p>
+            <div id="scatter-plots"></div>
+        </div>
+
+    </main>
+
+    <script>
+        // Define margin, width, and height for the chart
+        var margin = {top: 20, right: 30, bottom: 20, left: 30},
+            width = 950 - margin.left - margin.right,
+            height = 600 - margin.top - margin.bottom;
+
+        // Define the full dataset
+        var fullData = {
+            nodes: [
+                {'id': 'ACC', 'type': 'conference'},
+                {'id': 'Big 12', 'type': 'conference'},
+                {'id': 'Big Ten', 'type': 'conference'},
+                {'id': 'Other', 'type': 'conference'},
+                {'id': 'Pac12', 'type': 'conference'},
+                {'id': 'SEC', 'type': 'conference'},
+                {'id': 'First Team All-Pro', 'type': 'award'},
+                {'id': 'Second Team All-Pro', 'type': 'award'},
+                {'id': 'Pro Bowl', 'type': 'award'},
+            ],
+            links: [
+                // ACC
+                {'source': 'ACC', 'target': 'First Team All-Pro', 'value': 31},
+                {'source': 'ACC', 'target': 'Second Team All-Pro', 'value': 35},
+                {'source': 'ACC', 'target': 'Pro Bowl', 'value': 107},
+                // Big 12
+                {'source': 'Big 12', 'target': 'First Team All-Pro', 'value': 27},
+                {'source': 'Big 12', 'target': 'Second Team All-Pro', 'value': 22},
+                {'source': 'Big 12', 'target': 'Pro Bowl', 'value': 94},
+                // Big Ten
+                {'source': 'Big Ten', 'target': 'First Team All-Pro', 'value': 37},
+                {'source': 'Big Ten', 'target': 'Second Team All-Pro', 'value': 27},
+                {'source': 'Big Ten', 'target': 'Pro Bowl', 'value': 121},
+                // Other
+                {'source': 'Other', 'target': 'First Team All-Pro', 'value': 73},
+                {'source': 'Other', 'target': 'Second Team All-Pro', 'value': 52},
+                {'source': 'Other', 'target': 'Pro Bowl', 'value': 218},
+                // Pac12
+                {'source': 'Pac12', 'target': 'First Team All-Pro', 'value': 26},
+                {'source': 'Pac12', 'target': 'Second Team All-Pro', 'value': 29},
+                {'source': 'Pac12', 'target': 'Pro Bowl', 'value': 111},
+                // SEC
+                {'source': 'SEC', 'target': 'First Team All-Pro', 'value': 51},
+                {'source': 'SEC', 'target': 'Second Team All-Pro', 'value': 73},
+                {'source': 'SEC', 'target': 'Pro Bowl', 'value': 260},
+            ]
+        };
+        var fullData2 = {
+            nodes: [
+                {'id': 'QB', 'type': 'position'}, {'id': 'RB', 'type': 'position'},
+                {'id': 'WR', 'type': 'position'}, {'id': 'TE', 'type': 'position'},
+                {'id': 'LB', 'type': 'position'}, {'id': 'CB', 'type': 'position'},
+                {'id': 'S', 'type': 'position'}, {'id': 'K', 'type': 'position'},
+                {'id': 'P', 'type': 'position'}, {'id': 'C', 'type': 'position'},
+                {'id': 'DE', 'type': 'position'}, {'id': 'ILB', 'type': 'position'},
+                {'id': 'DT', 'type': 'position'}, {'id': 'FB', 'type': 'position'},
+                {'id': 'LS', 'type': 'position'}, {'id': 'OT', 'type': 'position'},
+                {'id': 'FS', 'type': 'position'}, {'id': 'NT', 'type': 'position'},
+                {'id': 'OG', 'type': 'position'}, {'id': 'SS', 'type': 'position'},
+                {'id': 'OLB', 'type': 'position'},
+                // Award nodes
+                {'id': 'MVP', 'type': 'award'}, {'id': 'SB_MVP', 'type': 'award'},
+                {'id': 'SB_WIN', 'type': 'award'}, {'id': 'OPOY', 'type': 'award'},
+                {'id': 'DPOY', 'type': 'award'}, {'id': 'OROY', 'type': 'award'},
+                {'id': 'DROY', 'type': 'award'}, {'id': 'First_AP', 'type': 'award'},
+                {'id': 'Second_AP', 'type': 'award'}, {'id': 'Pro_Bowl', 'type': 'award'}
+            ],
+            links: [
+                // QB
+                {'source': 'QB', 'target': 'MVP', 'value': 5},
+                {'source': 'QB', 'target': 'SB_MVP', 'value': 4},
+                {'source': 'QB', 'target': 'SB_WIN', 'value': 20},
+                {'source': 'QB', 'target': 'OPOY', 'value': 2},
+                {'source': 'QB', 'target': 'DPOY', 'value': 0},
+                {'source': 'QB', 'target': 'OROY', 'value': 6},
+                {'source': 'QB', 'target': 'DROY', 'value': 0},
+                {'source': 'QB', 'target': 'First_AP', 'value': 5},
+                {'source': 'QB', 'target': 'Second_AP', 'value': 6},
+                {'source': 'QB', 'target': 'Pro_Bowl', 'value': 66},
+                // C
+                {'source': 'C', 'target': 'MVP', 'value': 0},
+                {'source': 'C', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'C', 'target': 'SB_WIN', 'value': 16},
+                {'source': 'C', 'target': 'OPOY', 'value': 0},
+                {'source': 'C', 'target': 'DPOY', 'value': 0},
+                {'source': 'C', 'target': 'OROY', 'value': 0},
+                {'source': 'C', 'target': 'DROY', 'value': 0},
+                {'source': 'C', 'target': 'First_AP', 'value': 10},
+                {'source': 'C', 'target': 'Second_AP', 'value': 9},
+                {'source': 'C', 'target': 'Pro_Bowl', 'value': 38},
+                // CB
+                {'source': 'CB', 'target': 'MVP', 'value': 0},
+                {'source': 'CB', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'CB', 'target': 'SB_WIN', 'value': 45},
+                {'source': 'CB', 'target': 'OPOY', 'value': 0},
+                {'source': 'CB', 'target': 'DPOY', 'value': 1},
+                {'source': 'CB', 'target': 'OROY', 'value': 0},
+                {'source': 'CB', 'target': 'DROY', 'value': 2},
+                {'source': 'CB', 'target': 'First_AP', 'value': 27},
+                {'source': 'CB', 'target': 'Second_AP', 'value': 26},
+                {'source': 'CB', 'target': 'Pro_Bowl', 'value': 82},
+                // DE
+                {'source': 'DE', 'target': 'MVP', 'value': 0},
+                {'source': 'DE', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'DE', 'target': 'SB_WIN', 'value': 43},
+                {'source': 'DE', 'target': 'OPOY', 'value': 0},
+                {'source': 'DE', 'target': 'DPOY', 'value': 5},
+                {'source': 'DE', 'target': 'OROY', 'value': 0},
+                {'source': 'DE', 'target': 'DROY', 'value': 3},
+                {'source': 'DE', 'target': 'First_AP', 'value': 19},
+                {'source': 'DE', 'target': 'Second_AP', 'value': 22},
+                {'source': 'DE', 'target': 'Pro_Bowl', 'value': 95},
+                // DT
+                {'source': 'DT', 'target': 'MVP', 'value': 0},
+                {'source': 'DT', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'DT', 'target': 'SB_WIN', 'value': 41},
+                {'source': 'DT', 'target': 'OPOY', 'value': 0},
+                {'source': 'DT', 'target': 'DPOY', 'value': 3},
+                {'source': 'DT', 'target': 'OROY', 'value': 0},
+                {'source': 'DT', 'target': 'DROY', 'value': 3},
+                {'source': 'DT', 'target': 'First_AP', 'value': 18},
+                {'source': 'DT', 'target': 'Second_AP', 'value': 20},
+                {'source': 'DT', 'target': 'Pro_Bowl', 'value': 72},
+                // FB
+                {'source': 'FB', 'target': 'MVP', 'value': 0},
+                {'source': 'FB', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'FB', 'target': 'SB_WIN', 'value': 2},
+                {'source': 'FB', 'target': 'OPOY', 'value': 0},
+                {'source': 'FB', 'target': 'DPOY', 'value': 0},
+                {'source': 'FB', 'target': 'OROY', 'value': 0},
+                {'source': 'FB', 'target': 'DROY', 'value': 0},
+                {'source': 'FB', 'target': 'First_AP', 'value': 1},
+                {'source': 'FB', 'target': 'Second_AP', 'value': 1},
+                {'source': 'FB', 'target': 'Pro_Bowl', 'value': 9},
+                // FS
+                {'source': 'FS', 'target': 'MVP', 'value': 0},
+                {'source': 'FS', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'FS', 'target': 'SB_WIN', 'value': 0},
+                {'source': 'FS', 'target': 'OPOY', 'value': 0},
+                {'source': 'FS', 'target': 'DPOY', 'value': 0},
+                {'source': 'FS', 'target': 'OROY', 'value': 0},
+                {'source': 'FS', 'target': 'DROY', 'value': 0},
+                {'source': 'FS', 'target': 'First_AP', 'value': 0},
+                {'source': 'FS', 'target': 'Second_AP', 'value': 0},
+                {'source': 'FS', 'target': 'Pro_Bowl', 'value': 0},
+                // ILB
+                {'source': 'ILB', 'target': 'MVP', 'value': 0},
+                {'source': 'ILB', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'ILB', 'target': 'SB_WIN', 'value': 3},
+                {'source': 'ILB', 'target': 'OPOY', 'value': 0},
+                {'source': 'ILB', 'target': 'DPOY', 'value': 0},
+                {'source': 'ILB', 'target': 'OROY', 'value': 0},
+                {'source': 'ILB', 'target': 'DROY', 'value': 0},
+                {'source': 'ILB', 'target': 'First_AP', 'value': 0},
+                {'source': 'ILB', 'target': 'Second_AP', 'value': 2},
+                {'source': 'ILB', 'target': 'Pro_Bowl', 'value': 2},
+                // K
+                {'source': 'K', 'target': 'MVP', 'value': 0},
+                {'source': 'K', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'K', 'target': 'SB_WIN', 'value': 6},
+                {'source': 'K', 'target': 'OPOY', 'value': 0},
+                {'source': 'K', 'target': 'DPOY', 'value': 0},
+                {'source': 'K', 'target': 'OROY', 'value': 0},
+                {'source': 'K', 'target': 'DROY', 'value': 0},
+                {'source': 'K', 'target': 'First_AP', 'value': 4},
+                {'source': 'K', 'target': 'Second_AP', 'value': 2},
+                {'source': 'K', 'target': 'Pro_Bowl', 'value': 4},
+                // LB
+                {'source': 'LB', 'target': 'MVP', 'value': 0},
+                {'source': 'LB', 'target': 'SB_MVP', 'value': 2},
+                {'source': 'LB', 'target': 'SB_WIN', 'value': 47},
+                {'source': 'LB', 'target': 'OPOY', 'value': 0},
+                {'source': 'LB', 'target': 'DPOY', 'value': 3},
+                {'source': 'LB', 'target': 'OROY', 'value': 0},
+                {'source': 'LB', 'target': 'DROY', 'value': 4},
+                {'source': 'LB', 'target': 'First_AP', 'value': 43},
+                {'source': 'LB', 'target': 'Second_AP', 'value': 37},
+                {'source': 'LB', 'target': 'Pro_Bowl', 'value': 102},
+                // LS
+                {'source': 'LS', 'target': 'MVP', 'value': 0},
+                {'source': 'LS', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'LS', 'target': 'SB_WIN', 'value': 2},
+                {'source': 'LS', 'target': 'OPOY', 'value': 0},
+                {'source': 'LS', 'target': 'DPOY', 'value': 0},
+                {'source': 'LS', 'target': 'OROY', 'value': 0},
+                {'source': 'LS', 'target': 'DROY', 'value': 0},
+                {'source': 'LS', 'target': 'First_AP', 'value': 0},
+                {'source': 'LS', 'target': 'Second_AP', 'value': 0},
+                {'source': 'LS', 'target': 'Pro_Bowl', 'value': 0},
+                // NT
+                {'source': 'NT', 'target': 'MVP', 'value': 0},
+                {'source': 'NT', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'NT', 'target': 'SB_WIN', 'value': 1},
+                {'source': 'NT', 'target': 'OPOY', 'value': 0},
+                {'source': 'NT', 'target': 'DPOY', 'value': 0},
+                {'source': 'NT', 'target': 'OROY', 'value': 0},
+                {'source': 'NT', 'target': 'DROY', 'value': 0},
+                {'source': 'NT', 'target': 'First_AP', 'value': 0},
+                {'source': 'NT', 'target': 'Second_AP', 'value': 0},
+                {'source': 'NT', 'target': 'Pro_Bowl', 'value': 2},
+                // OG
+                {'source': 'OG', 'target': 'MVP', 'value': 0},
+                {'source': 'OG', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'OG', 'target': 'SB_WIN', 'value': 22},
+                {'source': 'OG', 'target': 'OPOY', 'value': 0},
+                {'source': 'OG', 'target': 'DPOY', 'value': 0},
+                {'source': 'OG', 'target': 'OROY', 'value': 0},
+                {'source': 'OG', 'target': 'DROY', 'value': 0},
+                {'source': 'OG', 'target': 'First_AP', 'value': 15},
+                {'source': 'OG', 'target': 'Second_AP', 'value': 12},
+                {'source': 'OG', 'target': 'Pro_Bowl', 'value': 57},
+                // OLB
+                {'source': 'OLB', 'target': 'MVP', 'value': 0},
+                {'source': 'OLB', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'OLB', 'target': 'SB_WIN', 'value': 1},
+                {'source': 'OLB', 'target': 'OPOY', 'value': 0},
+                {'source': 'OLB', 'target': 'DPOY', 'value': 0},
+                {'source': 'OLB', 'target': 'OROY', 'value': 0},
+                {'source': 'OLB', 'target': 'DROY', 'value': 0},
+                {'source': 'OLB', 'target': 'First_AP', 'value': 0},
+                {'source': 'OLB', 'target': 'Second_AP', 'value': 0},
+                {'source': 'OLB', 'target': 'Pro_Bowl', 'value': 2},
+                // OT
+                {'source': 'OT', 'target': 'MVP', 'value': 0},
+                {'source': 'OT', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'OT', 'target': 'SB_WIN', 'value': 47},
+                {'source': 'OT', 'target': 'OPOY', 'value': 0},
+                {'source': 'OT', 'target': 'DPOY', 'value': 0},
+                {'source': 'OT', 'target': 'OROY', 'value': 0},
+                {'source': 'OT', 'target': 'DROY', 'value': 0},
+                {'source': 'OT', 'target': 'First_AP', 'value': 18},
+                {'source': 'OT', 'target': 'Second_AP', 'value': 24},
+                {'source': 'OT', 'target': 'Pro_Bowl', 'value': 73},
+                // P
+                {'source': 'P', 'target': 'MVP', 'value': 0},
+                {'source': 'P', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'P', 'target': 'SB_WIN', 'value': 1},
+                {'source': 'P', 'target': 'OPOY', 'value': 0},
+                {'source': 'P', 'target': 'DPOY', 'value': 0},
+                {'source': 'P', 'target': 'OROY', 'value': 0},
+                {'source': 'P', 'target': 'DROY', 'value': 0},
+                {'source': 'P', 'target': 'First_AP', 'value': 2},
+                {'source': 'P', 'target': 'Second_AP', 'value': 2},
+                {'source': 'P', 'target': 'Pro_Bowl', 'value': 4},
+                // RB
+                {'source': 'RB', 'target': 'MVP', 'value': 0},
+                {'source': 'RB', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'RB', 'target': 'SB_WIN', 'value': 46},
+                {'source': 'RB', 'target': 'OPOY', 'value': 4},
+                {'source': 'RB', 'target': 'DPOY', 'value': 0},
+                {'source': 'RB', 'target': 'OROY', 'value': 4},
+                {'source': 'RB', 'target': 'DROY', 'value': 0},
+                {'source': 'RB', 'target': 'First_AP', 'value': 18},
+                {'source': 'RB', 'target': 'Second_AP', 'value': 18},
+                {'source': 'RB', 'target': 'Pro_Bowl', 'value': 69},
+                // S
+                {'source': 'S', 'target': 'MVP', 'value': 0},
+                {'source': 'S', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'S', 'target': 'SB_WIN', 'value': 42},
+                {'source': 'S', 'target': 'OPOY', 'value': 0},
+                {'source': 'S', 'target': 'DPOY', 'value': 0},
+                {'source': 'S', 'target': 'OROY', 'value': 0},
+                {'source': 'S', 'target': 'DROY', 'value': 0},
+                {'source': 'S', 'target': 'First_AP', 'value': 23},
+                {'source': 'S', 'target': 'Second_AP', 'value': 17},
+                {'source': 'S', 'target': 'Pro_Bowl', 'value': 65},
+                // SS
+                {'source': 'SS', 'target': 'MVP', 'value': 0},
+                {'source': 'SS', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'SS', 'target': 'SB_WIN', 'value': 0},
+                {'source': 'SS', 'target': 'OPOY', 'value': 0},
+                {'source': 'SS', 'target': 'DPOY', 'value': 0},
+                {'source': 'SS', 'target': 'OROY', 'value': 0},
+                {'source': 'SS', 'target': 'DROY', 'value': 0},
+                {'source': 'SS', 'target': 'First_AP', 'value': 0},
+                {'source': 'SS', 'target': 'Second_AP', 'value': 0},
+                {'source': 'SS', 'target': 'Pro_Bowl', 'value': 0},
+                // TE
+                {'source': 'TE', 'target': 'MVP', 'value': 0},
+                {'source': 'TE', 'target': 'SB_MVP', 'value': 0},
+                {'source': 'TE', 'target': 'SB_WIN', 'value': 26},
+                {'source': 'TE', 'target': 'OPOY', 'value': 0},
+                {'source': 'TE', 'target': 'DPOY', 'value': 0},
+                {'source': 'TE', 'target': 'OROY', 'value': 0},
+                {'source': 'TE', 'target': 'DROY', 'value': 0},
+                {'source': 'TE', 'target': 'First_AP', 'value': 12},
+                {'source': 'TE', 'target': 'Second_AP', 'value': 6},
+                {'source': 'TE', 'target': 'Pro_Bowl', 'value': 48},
+                // WR
+                {'source': 'WR', 'target': 'MVP', 'value': 0},
+                {'source': 'WR', 'target': 'SB_MVP', 'value': 1},
+                {'source': 'WR', 'target': 'SB_WIN', 'value': 45},
+                {'source': 'WR', 'target': 'OPOY', 'value': 3},
+                {'source': 'WR', 'target': 'DPOY', 'value': 0},
+                {'source': 'WR', 'target': 'OROY', 'value': 1},
+                {'source': 'WR', 'target': 'DROY', 'value': 0},
+                {'source': 'WR', 'target': 'First_AP', 'value': 30},
+                {'source': 'WR', 'target': 'Second_AP', 'value': 34},
+                {'source': 'WR', 'target': 'Pro_Bowl', 'value': 121},
+            ]
+        };
+
+        // Define the 'conferences' array based on 'fullData'
+        var conferences = fullData.nodes.filter(function (d) {
+            return d.type === 'conference';
+        }).map(function (d) {
+            return d.id;
+        });
+
+        // Define the color scale for awards
+        var awardColors = {
+            'First Team All-Pro': '#e6194B',
+            'Second Team All-Pro': '#3cb44b',
+            'Pro Bowl': '#ffe119'
+        };
+
+        var awardColors2 = {
+            'MVP': '#e6194B', 'SB_MVP': '#3cb44b', 'SB_WIN': '#ffe119',
+            'OPOY': '#4363d8', 'DPOY': '#f58231', 'OROY': '#911eb4',
+            'DROY': '#46f0f0', 'First_AP': '#f032e6', 'Second_AP': '#bcf60c',
+            'Pro_Bowl': '#fabebe'
+        };
+
+        // CHART 1
+        function createConferenceChart(selectId, datavizId) {
+            // Create SVG and groups for the visualization
+            var svg = d3.select("#" + datavizId)
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Populate the dropdown
+            var select = document.getElementById(selectId);
+            conferences.forEach(function (conference) {
+                var option = document.createElement("option");
+                option.value = conference;
+                option.text = conference;
+                select.appendChild(option);
+            });
+
+            // Dropdown change event listener
+            select.addEventListener("change", function () {
+                updateVisualization(this.value, svg);
+            });
+
+            // Initial visualization
+            updateVisualization(conferences[0], svg);
+        }
+
+        // Update the visualization based on selected conference
+        function updateVisualization(selectedConference, svg) {
+            // Filter the data based on the selected conference
+            var filteredData = {
+                nodes: fullData.nodes.filter(function (d) {
+                    return d.type === 'award' || d.id === selectedConference;
+                }),
+                links: fullData.links.filter(function (d) {
+                    return d.source === selectedConference;
+                })
+            };
+            renderVisualization(filteredData, svg);
+        }
+
+        // Render the visualization
+        function renderVisualization(data, svg) {
+            // Remove any previous visualizations
+            svg.selectAll("*").remove();
+
+            // Define scales and other variables necessary for rendering
+            var allNodes = data.nodes.map(function (d) {
+                return d.id;
+            });
+            var x = d3.scalePoint().range([0, width]).domain(allNodes);
+
+            // Draw the nodes (circles)
+            svg.selectAll("mynodes")
+                .data(data.nodes)
+                .enter()
+                .append("circle")
+                .attr("cx", function (d) {
+                    return x(d.id);
+                })
+                .attr("cy", height - 30)
+                .attr("r", 16)
+                .style("fill", function (d) {
+                    return d.type === 'conference' ? "#69b387" : "#4C9A2A";
+                });
+
+            // Add labels to the nodes
+            svg.selectAll("mylabels")
+                .data(data.nodes)
+                .enter()
+                .append("text")
+                .attr("x", function (d) {
+                    return x(d.id);
+                })
+                .attr("y", height)
+                .text(function (d) {
+                    return d.id;
+                })
+                .style("text-anchor", "middle");
+
+            // Draw the links (paths)
+            var links = svg.selectAll('mylinks')
+                .data(data.links)
+                .enter()
+                .append('path')
+                .attr('d', function (d) {
+                    var start = x(d.source), end = x(d.target);
+                    var heightAdjust = Math.min(200, 20 + d.value * 2); // Adjust height based on link value
+                    return ['M', start, height - 30, 'A', (start - end) / 2, ',', heightAdjust, 0, 0, ',', start < end ? 1 : 0, end, ',', height - 30].join(' ');
+                })
+                .style("fill", "none")
+                .attr("stroke", function (d) {
+                    return awardColors[d.target];
+                })
+                .attr("stroke-width", function (d) {
+                    return Math.sqrt(d.value) * 2;
+                });
+
+            // Add labels to the links (values)
+            links.each(function (d) {
+                if (d.value !== 0) { // Check if value is not zero
+                    var path = d3.select(this);
+                    var midpointX = (x(d.source) + x(d.target)) / 2;
+                    var totalLength = path.node().getTotalLength();
+                    var midpoint = path.node().getPointAtLength(totalLength / 2);
+
+                    svg.append("text")
+                        .attr("x", midpointX)
+                        .attr("y", midpoint.y - 12) // Shift up from the apex of the arc
+                        .text(d.value)
+                        .style("font-size", "12px")
+                        .attr("text-anchor", "middle");
+                }
+            });
+        }
+
+        // CHART 2
+        function createPositionChart(selectId, datavizId) {
+            var svg = d3.select("#" + datavizId)
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var select = document.getElementById(selectId);
+            var positions = fullData2.nodes.filter(function (d) {
+                return d.type === 'position';
+            }).map(function (d) {
+                return d.id;
+            });
+            positions.forEach(function (position) {
+                var option = document.createElement("option");
+                option.value = position;
+                option.text = position;
+                select.appendChild(option);
+            });
+
+            select.addEventListener("change", function () {
+                updateVisualization2(this.value, svg);
+            });
+
+            updateVisualization2(positions[0], svg); // Initial call also passes svg
+        }
+
+        function updateVisualization2(selectedPosition, svg) {
+            var filteredData = {
+                nodes: fullData2.nodes.filter(function (d) {
+                    return d.id === selectedPosition || d.type === 'award';
+                }),
+                links: fullData2.links.filter(function (d) {
+                    return d.source === selectedPosition;
+                })
+            };
+
+            renderVisualization2(filteredData, svg);
+        }
+
+        function renderVisualization2(data, svg) {
+            svg.selectAll("*").remove();
+
+            var allNodes = data.nodes.map(function (d) {
+                return d.id;
+            });
+            var x = d3.scalePoint().range([0, width]).domain(allNodes);
+
+            svg.selectAll("mynodes")
+                .data(data.nodes)
+                .enter()
+                .append("circle")
+                .attr("cx", function (d) {
+                    return x(d.id);
+                })
+                .attr("cy", height - 30)
+                .attr("r", 8)
+                .style("fill", function (d) {
+                    return d.type === 'position' ? "#69b387" : "#4C9A2A";
+                });
+
+            svg.selectAll("mylabels")
+                .data(data.nodes)
+                .enter()
+                .append("text")
+                .attr("x", function (d) {
+                    return x(d.id);
+                })
+                .attr("y", height - 10)
+                .text(function (d) {
+                    return d.id;
+                })
+                .style("text-anchor", "middle");
+
+            var links = svg.selectAll('mylinks')
+                .data(data.links)
+                .enter()
+                .append('path')
+                .attr('d', function (d) {
+                    var start = x(d.source), end = x(d.target);
+                    var heightAdjust = Math.min(200, 20 + d.value * 2); // Adjust height based on link value
+                    return ['M', start, height - 30, 'A', (start - end) / 2, ',', heightAdjust, 0, 0, ',', start < end ? 1 : 0, end, ',', height - 30].join(' ');
+                })
+                .style("fill", "none")
+                .attr("stroke", function (d) {
+                    return awardColors2[d.target];
+                })
+                .attr("stroke-width", function (d) {
+                    return Math.sqrt(d.value) * 2;
+                });
+
+            // Labels for the links
+            links.each(function (d) {
+                if (d.value !== 0) {
+                    var path = d3.select(this);
+                    var midpointX = (x(d.source) + x(d.target)) / 2;
+                    var totalLength = path.node().getTotalLength();
+                    var midpoint = path.node().getPointAtLength(totalLength / 2);
+
+                    svg.append("text")
+                        .attr("x", midpointX)
+                        .attr("y", midpoint.y - 12)
+                        .text(d.value)
+                        .style("font-size", "12px")
+                        .attr("text-anchor", "middle");
+                }
+            });
+        }
+
+        function makePosPCP() {
+
+            // Set the dimensions and margins of the graph
+            const margin = {top: 30, right: 50, bottom: 10, left: 50},
+                width = 1200 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+            // Append the svg object to the body of the page
+            const svg = d3.select("#svg-container1")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+            // Parse and load the data
+            d3.csv("python/results/total/joindf_total.csv")
+                .then(function (data) {
+                    data.forEach(d => {
+                        if (d.Pos == 'OLB' || d.Pos == 'ILB') {
+                            d.Pos = 'LB';
+                        } else if (d.Pos == 'SS' || d.Pos == 'FS') {
+                            d.Pos = 'S';
+                        } else if (d.Pos == 'OT' || d.Pos == 'OG' || d.Pos == 'G' || d.Pos == 'NT' || d.Pos == 'C') {
+                            d.Pos = 'OL';
+                        }
+                    });
+
+                    data = data.filter(d => {
+                        return (d.Pos != 'LS' && d.Pos != 'P');
+                    });
+
+                    let positions = [...new Set(data.map(d => d.Pos))];
+
+                    var color = d3.scaleOrdinal().domain(positions).range(d3.schemeSet3);
+
+                    // Extract the list of dimensions and create a scale for each
+                    const dimensions = ["MVP", "SB_MVP", "SB_WIN", "OPOY", "DPOY", "OROY", "DROY", "First_AP", "Second_AP", "Pro_Bowl"];
+                    // For each dimension, I build a linear scale. I store all in a y object
+                    var y = {}
+                    for (i in dimensions) {
+                        name = dimensions[i]
+                        y[name] = d3.scaleLinear()
+                            .domain(d3.extent(data, function (d) {
+                                return +d[name];
+                            }))
+                            .range([height, 0])
+                    }
+
+                    // Build the X scale -> it finds the best position for each Y axis
+                    const x = d3.scalePoint()
+                        .range([0, width])
+                        .padding(1)
+                        .domain(dimensions);
+
+                    // Highlight the specie that is hovered
+                    var highlight = function (event, d) {
+                        let selected_pos = d.Pos.replace(/\s+/g, '_');
+                        d3.selectAll(".line").transition().duration(200)
+                            .style("stroke", "lightgrey")
+                            .style("opacity", "0.1");
+                        d3.selectAll("." + selected_pos).transition().duration(200)
+                            .style("stroke", color(selected_pos))
+                            .style("opacity", "1");
+                    };
+
+                    var doNotHighlight = function () {
+                        d3.selectAll(".line").transition().duration(200)
+                            .style("stroke", function (d) {
+                                return (color(d.Pos.replace(/\s+/g, '_')))
+                            })
+                            .style("opacity", "0.2");
+                    };
+
+                    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+                    function path(d) {
+                        return d3.line()(dimensions.map(function (p) {
+                            return [x(p), y[p](d[p])];
+                        }));
+                    }
+
+                    // Draw the lines
+                    svg
+                        .selectAll("myPath")
+                        .data(data)
+                        .enter()
+                        .append("path")
+                        .attr("class", function (d) {
+                            return "line " + d.Pos.replace(/\s+/g, '_');
+                        }) // Sanitize Pos for CSS class
+                        .attr("d", path)
+                        .style("fill", "none")
+                        .style("stroke", function (d) {
+                            return (color(d.Pos))
+                        })
+                        .style("opacity", 0.2)
+                        .style("stroke-width", 2)
+                        .on("mouseover", (event, d) => highlight(event, d))
+                        .on("mouseleave", (event, d) => doNotHighlight(event, d));
+
+                    // Draw the axis:
+                    svg.selectAll("myAxis")
+                        // For each dimension of the dataset I add a 'g' element:
+                        .data(dimensions).enter()
+                        .append("g")
+                        .attr("class", "axis")
+                        // I translate this element to its right position on the x axis
+                        .attr("transform", function (d) {
+                            return "translate(" + x(d) + ")";
+                        })
+                        // And I build the axis with the call function
+                        .each(function (d) {
+                            d3.select(this).call(d3.axisLeft().ticks(y[d].domain()[1]).scale(y[d]));
+                        })
+                        // Add axis title
+                        .append("text")
+                        .style("text-anchor", "middle")
+                        .attr("y", -9)
+                        .text(function (d) {
+                            return d;
+                        })
+                        .style("fill", "black")
+                        .style("font-size", "12px")
+                        .style("font-family", "Helvetica")
+
+                    var legendData = [...new Set(data.map(item => item.Pos))];
+                    // make legend
+                    svg.selectAll('.legend-circle')
+                        .data(positions)
+                        .enter()
+                        .append('circle')
+                        .attr("class", 'legend-circle')
+                        .attr('Pos', function (d) {
+                            return d;
+                        })
+                        .attr('r', 5)
+                        .attr('cx', width)
+                        .attr('cy', function (d, i) {
+                            return 10 + (20 * i);
+                        })
+                        .style('fill', function (d) {
+                            return color(d);
+                        })
+                        .on("mouseover", (event, pos) => {
+                            highlight(event, {Pos: pos});
+                        })
+                        .on("mouseleave", doNotHighlight);
+
+                    svg.selectAll('.legend-text')
+                        .data(positions)
+                        .enter()
+                        .append("text")
+                        .attr('class', 'legend-text')
+                        .attr('Pos', function (d) {
+                            return d;
+                        })
+                        .attr("x", width + 20)
+                        .attr("y", function (d, i) {
+                            return 10 + (20 * i);
+                        })
+                        .text(function (d) {
+                            return d;
+                        })
+                        .style("font-size", "12px")
+                        .style("font-family", "Helvetica")
+                        .attr("alignment-baseline", "middle")
+                        .on("mouseover", (event, d) => highlight(event, d))
+                        .on("mouseleave", doNotHighlight);
+                });
+        }
+
+        function makeConfPCP() {
+
+            // Set the dimensions and margins of the graph
+            const margin = { top: 30, right: 50, bottom: 10, left: 50 },
+                width = 1200 - margin.left - margin.right,
+                height = 500 - margin.top - margin.bottom;
+
+            // Append the svg object to the body of the page
+            const svg = d3.select("#svg-container2")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+            // Parse and load the data
+            d3.csv("python/results/total/joindf_total.csv")
+                .then(function (data) {
+                    data.forEach(d => {
+                        if(d.Pos == 'OLB' || d.Pos == 'ILB') {
+                            d.Pos = 'LB';
+                        } else if (d.Pos == 'SS' || d.Pos == 'FS') {
+                            d.Pos = 'S';
+                        } else if (d.Pos == 'OT' || d.Pos == 'OG' || d.Pos == 'G' || d.Pos == 'NT' || d.Pos == 'C') {
+                            d.Pos = 'OL';
+                        }
+
+                    if(d.Conf_Clean == 'Big Ten') {
+                        d.Conf_Clean = 'Big_Ten';
+                    } else if(d.Conf_Clean == 'Big 12') {
+                        d.Conf_Clean = 'Big_12';
+                    }
+                });
+
+                data = data.filter(d => { return (d.Pos != 'LS' && d.Pos != 'P');});
+
+                let confs = [...new Set(data.map(d => d.Conf_Clean))];
+
+                var color = d3.scaleOrdinal().domain(confs).range(d3.schemeSet1);
+
+                // Extract the list of dimensions and create a scale for each
+                const dimensions = ["MVP", "SB_MVP", "SB_WIN", "OPOY", "DPOY", "OROY", "DROY", "First_AP", "Second_AP", "Pro_Bowl"];
+                // For each dimension, I build a linear scale. I store all in a y object
+                var y = {}
+                for (i in dimensions) {
+                    name = dimensions[i]
+                    y[name] = d3.scaleLinear()
+                        .domain( d3.extent(data, function(d) { return +d[name]; }) )
+                        .range([height, 0])
+                }
+
+                // Build the X scale -> it finds the best position for each Y axis
+                const x = d3.scalePoint()
+                    .range([0, width])
+                    .padding(1)
+                    .domain(dimensions);
+
+                // Highlight the specie that is hovered
+                var highlight = function(event, d){
+                    let selected_conf = d.Conf_Clean || d; // Assuming d or d.Conf_Clean is a string
+
+                    // first every group turns grey
+                    d3.selectAll(".line")
+                        .transition().duration(200)
+                        .style("stroke", "lightgrey")
+                        .style("opacity", "0.1")
+                    // Second the hovered specie takes its color
+                    d3.selectAll("." + selected_conf.replace(/ /g, "_")) // Assuming selected_conf needs to be sanitized for spaces
+                        .transition().duration(200)
+                        .style("stroke", color(selected_conf))
+                        .style("opacity", "1")
+                }
+
+
+                    // Unhighlight
+                var doNotHighlight = function(d){
+                    d3.selectAll(".line")
+                        .transition().duration(200).delay(1000)
+                        .style("stroke", function(d){ return( color(d.Conf_Clean))} )
+                        .style("opacity", ".2")
+                }
+
+                // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+                function path(d) {
+                    return d3.line()(dimensions.map(function(p) {
+                        return [x(p), y[p](d[p])];
+                    }));
+                }
+
+                // Draw the lines
+                svg
+                    .selectAll("myPath")
+                    .data(data)
+                    .enter()
+                    .append("path")
+                    .attr("class", function (d) { return "line " + d.Conf_Clean.replace(/\s+/g, '_'); }) // Replace spaces with underscore for CSS class
+                    .attr("d", path)
+                    .style("fill", "none")
+                    .style("stroke", function(d){ return color(d.Conf_Clean.replace(/\s+/g, '_')); })
+                    .style("opacity", 0.2)
+                    .style("stroke-width", 2)
+                    .on("mouseover", (event, d) => highlight(event, d)) // Updated event binding
+                    .on("mouseleave", doNotHighlight);
+
+
+                    // Draw the axis:
+                svg.selectAll("myAxis")
+                    // For each dimension of the dataset I add a 'g' element:
+                    .data(dimensions).enter()
+                    .append("g")
+                    .attr("class", "axis")
+                    // I translate this element to its right position on the x axis
+                    .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+                    // And I build the axis with the call function
+                    .each(function(d) { d3.select(this).call(d3.axisLeft().ticks(y[d].domain()[1]).scale(y[d])); })
+                    // Add axis title
+                    .append("text")
+                    .style("text-anchor", "middle")
+                    .attr("y", -9)
+                    .text(function(d) { return d; })
+                    .style("fill", "black")
+                    .style("font-size", "12px")
+                    .style("font-family", "Helvetica")
+
+
+                // make legend
+                svg.selectAll('.legend-circle')
+                    .data(confs)
+                    .enter()
+                    .append('circle')
+                    .attr("class", 'legend-circle')
+                    .attr('Pos', function (d) {
+                        return d;
+                    })
+                    .attr('r', 5)
+                    .attr('cx', width - 10)
+                    .attr('cy', function (d, i) {
+                        return 10 + (20 * i);
+                    })
+                    .style('fill', function (d) {
+                        return color(d);
+                    })
+                    .on("mouseover", highlight)
+                    .on("mouseleave", doNotHighlight );
+
+                svg.selectAll('.legend-text')
+                    .data(confs)
+                    .enter()
+                    .append("text")
+                    .attr('class', 'legend-text')
+                    .attr('Pos', function (d) {
+                        return d;
+                    })
+                    .attr("x", width + 5)
+                    .attr("y", function (d, i) {
+                        return 10 + (20 * i);
+                    })
+                    .text(function (d) {
+                        return d;
+                    })
+                    .style("font-size", "12px")
+                    .style("font-family", "Helvetica")
+                    .attr("alignment-baseline","middle")
+                    .on("mouseover", highlight)
+                    .on("mouseleave", doNotHighlight );
+            });
+
+        }
+
+        function makeTeamSpider() {
+
+                d3.csv("python/results/total/washPostdataNew.csv").then(function(data) {
+                // Group data by Team
+                var nestedData = d3.group(data, d => d.Team);
+
+                // Define colors for each team
+                var teamColors = d3.scaleOrdinal(d3.schemeCategory10);
+
+                // Iterate over teams and calculate player counts for each conference
+                var chartData = Array.from(nestedData, ([teamName, players]) => {
+                    var conferenceCounts = {};
+                    players.forEach(player => {
+                        var conference = player.Conf_Clean;
+                        if (conferenceCounts[conference]) {
+                            conferenceCounts[conference]++;
+                        } else {
+                            conferenceCounts[conference] = 1;
+                        }
+                    });
+                    return { Team: teamName, ConferenceCounts: conferenceCounts };
+                });
+
+                // Calculate the maximum value of all conference counts
+                var maxConferenceCount = d3.max(chartData, d => d3.max(Object.values(d.ConferenceCounts)));
+
+                // Dimensions for each plot
+                let width = 450;
+                let height = 450;
+
+                // Iterate over each team's data and create a separate plot
+                chartData.forEach(function(team, index) {
+                    let svg = d3.select("#spider-charts-team").append("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    // Title for the plot
+                    svg.append("text")
+                        .attr("x", width / 2)
+                        .attr("y", 30)
+                        .attr("text-anchor", "middle")
+                        .text(team.Team);
+
+                    // Data for the radar chart
+                    let conferenceCounts = team.ConferenceCounts;
+                    let conferences = Object.keys(conferenceCounts).sort(); // Sort conferences alphabetically
+
+                    // Scale for the radar chart using the maximum value
+                    let radialScale = d3.scaleLinear()
+                        .domain([0, maxConferenceCount])
+                        .range([0, height / 2 - 100]);
+
+                    // Fixed radius for radial ticks
+                    let tickRadius = 200;
+
+                    // Draw radial ticks
+                    let ticks = [5, 10, 15, 20, 25, 30, 35, 40];
+                    let tickLength = 0;
+                    svg.selectAll("circle.big-circle")
+                        .data(ticks)
+                        .enter().append("circle")
+                        .attr("class", "big-circle")
+                        .attr("cx", width / 2)
+                        .attr("cy", height / 2)
+                        .attr("fill", "none")
+                        .attr("stroke", "gray")
+                        .attr("r", d => radialScale(d));
+
+                    // Draw axes
+                    let maxTick = Math.max(...ticks);
+
+                    // Draw axes
+                    svg.selectAll("line")
+                        .data(conferences)
+                        .enter().append("line")
+                        .attr("x1", width / 2)
+                        .attr("y1", height / 2)
+                        .attr("x2", function(d, i) {
+                            let angle = Math.PI / 2 - 2 * Math.PI * i / conferences.length;
+                            return width / 2 + radialScale(maxTick) * Math.cos(angle);
+                        })
+                        .attr("y2", function(d, i) {
+                            let angle = Math.PI / 2 - 2 * Math.PI * i / conferences.length;
+                            return height / 2 - radialScale(maxTick) * Math.sin(angle);
+                        })
+                        .attr("stroke", "black");
+
+                    // Draw labels
+                    svg.selectAll("text.label")
+                        .data(conferences)
+                        .enter().append("text")
+                        .attr("class", "label")
+                        .attr("x", function(d, i) {
+                            let angle = Math.PI / 2 - 2 * Math.PI * i / conferences.length;
+                            let labelRadius = radialScale(maxTick) + 20; // Place the labels 20 units outside the biggest circle
+                            return width / 2 + labelRadius * Math.cos(angle);
+                        })
+                        .attr("y", function(d, i) {
+                            let angle = Math.PI / 2 - 2 * Math.PI * i / conferences.length;
+                            let labelRadius = radialScale(maxTick) + 20; // Place the labels 20 units outside the biggest circle
+                            return height / 2 - labelRadius * Math.sin(angle);
+                        })
+                        .attr("dy", "0.35em")
+                        .text(function(d) { return d; });
+                    
+                    svg.selectAll("circle.tick")
+                        .data(ticks)
+                        .enter().append("circle")
+                        .attr("class", "tick")
+                        .attr("cx", width / 2)
+                        .attr("cy", height / 2)
+                        .attr("fill", "none")
+                        .attr("stroke", "gray")
+                        .attr("r", d => radialScale(d));
+
+                    svg.selectAll("line.tick-mark")
+                        .data(ticks)
+                        .enter().append("line")
+                        .attr("class", "tick-mark")
+                        .attr("x1", width / 2)
+                        .attr("y1", height / 2)
+                        .attr("x2", function(d) {
+                            let angle = Math.PI / 2;
+                            return width / 2 + (radialScale(d) + tickLength) * Math.cos(angle);
+                        })
+                        .attr("y2", function(d) {
+                            let angle = Math.PI / 2;
+                            return height / 2 - (radialScale(d) + tickLength) * Math.sin(angle);
+                        })
+                        .attr("stroke", "gray");
+
+                    // Display tick labels
+                    svg.selectAll("text.tick-label")
+                        .data(ticks)
+                        .enter().append("text")
+                        .attr("class", "tick-label")
+                        .attr("x", function(d) {
+                            let angle = Math.PI / 2;
+                            return width / 2 + (radialScale(d) + tickLength + 5) * Math.cos(angle); // Adjust the offset as needed
+                        })
+                        .attr("y", function(d) {
+                            let angle = Math.PI / 2;
+                            return height / 2 - (radialScale(d) + tickLength + 5) * Math.sin(angle); // Adjust the offset as needed
+                        })
+                        .attr("dy", "0.35em")
+                        .text(function(d) { return d; });
+                    
+                    
+                    // Draw data path
+                    let line = d3.line()
+                        .x(function(d, i) { return width / 2 + radialScale(conferenceCounts[conferences[i]]) * Math.cos(Math.PI / 2 - 2 * Math.PI * i / conferences.length); })
+                        .y(function(d, i) { return height / 2 - radialScale(conferenceCounts[conferences[i]]) * Math.sin(Math.PI / 2 - 2 * Math.PI * i / conferences.length); });
+
+                    svg.append("path")
+                        .datum(conferences)
+                        .attr("d", line)
+                        .attr("stroke", teamColors(team.Team)) // Assigning color based on team
+                        .attr("stroke-width", 2)
+                        .attr("fill", teamColors(team.Team)) // Assigning color based on team
+                        .attr("fill-opacity", 0.5);
+
+                    var accIndex = conferences.indexOf("ACC");
+                    var secIndex = conferences.indexOf("SEC");
+
+                    // Calculate the coordinates for ACC and SEC
+                    var accX = width / 2 + radialScale(conferenceCounts["ACC"]) * Math.cos(Math.PI / 2 - 2 * Math.PI * accIndex / conferences.length);
+                    var accY = height / 2 - radialScale(conferenceCounts["ACC"]) * Math.sin(Math.PI / 2 - 2 * Math.PI * accIndex / conferences.length);
+                    var secX = width / 2 + radialScale(conferenceCounts["SEC"]) * Math.cos(Math.PI / 2 - 2 * Math.PI * secIndex / conferences.length);
+                    var secY = height / 2 - radialScale(conferenceCounts["SEC"]) * Math.sin(Math.PI / 2 - 2 * Math.PI * secIndex / conferences.length);
+
+                    // Draw a line between ACC and SEC
+                    svg.append("line")
+                        .attr("x1", accX)
+                        .attr("y1", accY)
+                        .attr("x2", secX)
+                        .attr("y2", secY)
+                        .attr("stroke-width", 2)
+                        .attr("stroke", teamColors(team.Team)); // Assigning color based on team
+                    });
+            });
+
+        }
+
+        function makeScatter() {
+
+            d3.csv("python/results/total/washPostdataNew.csv").then(function(data) {
+                var rounds = d3.group(data, d => d.Round);
+                var margin = { top: 30, right: 50, bottom: 100, left: 50 }; // Adjusted margin
+                var fullWidth = window.innerWidth - 300; // Half of the screen width
+                var width = fullWidth;
+                var height = 200 - margin.top - margin.bottom;
+                var xScale = d3.scaleLinear()
+                            .domain([0, d3.max(data, d => +d.Total_Score)])
+                            .range([0, fullWidth]);
+                
+                rounds.forEach(function(players, round) {
+                    createScatterPlot(players, round, xScale);
+                });
+            }).catch(function(error) {
+                console.log("Error loading the data: " + error);
+            });
+
+
+            function createScatterPlot(data, round, xScale) {
+                var margin = { top: 30, right: 50, bottom: 100, left: 50 }; // Adjusted margin
+                var fullWidth = window.innerWidth - 300; // Half of the screen width
+                var width = fullWidth;
+                var height = 200 - margin.top - margin.bottom;
+
+                var svg = d3.select("#scatter-plots")
+                            .append("div")
+                            .attr("class", "scatter")
+                            .append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform", "translate(" + (margin.left + width / 2) + "," + margin.top + ") translate(" + (-width / 2) + ", 0)");
+
+                var yScale = d3.scaleLinear()
+                            .domain([d3.max(data, d => +d.Round_Pick_No), 0])
+                            .range([height, 0]);
+
+                svg.append("g")
+                    .attr("class", "axis-x")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
+
+                svg.append("g")
+                    .call(d3.axisLeft(yScale).tickSize(0).tickFormat(''));
+
+                svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", d => xScale(d.Total_Score))
+                .attr("cy", d => yScale(+d.Round_Pick_No))
+                .attr("r", 4)
+                .attr("fill", "lightgrey")
+                .on("mouseover", function(event, d) {
+                        d3.select(this).attr("stroke-width", 2).attr("stroke", "black");
+                        tooltip.style("visibility", "visible")
+                            .html(`<strong>Name:</strong> ${d.Player}<br><strong>ID:</strong> ${d.ID}<br><strong>Pick:</strong> ${d.Pick_No}<br><strong>Position:</strong> ${d.Pos}`);
+                })
+                .on("mousemove", function(event) {
+                        tooltip.style("top", (event.pageY - 10) + "px")
+                            .style("left", (event.pageX + 10) + "px");
+                })
+                .on("mouseout", function() {
+                        // Change fill color back to light grey on mouseout
+                        d3.select(this).attr("stroke-width", null).attr("stroke", null);
+                        // Hide tooltip on mouseout
+                        tooltip.style("visibility", "hidden");
+                });
+
+                svg.append("text")
+                    .attr("x", -height / 2) // Adjusted x-coordinate
+                    .attr("y", -margin.left + 20) // Adjusted y-coordinate
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "16px")
+                    .attr("transform", "rotate(-90)")
+                    .text("Round " + round);
+
+                var tooltip = d3.select("#scatter-plots")
+                                .append("div")
+                                .attr("class", "tooltip");
+            }
+
+        }
+
+        // Call 'createChart' for each chart container
+        createConferenceChart('conferenceSelect1', 'my_dataviz1');
+        createPositionChart('positionSelect2', 'my_dataviz2');
+        makePosPCP();
+        makeConfPCP();
+        makeTeamSpider();
+        makeScatter();
+
+    </script>
+
+    <footer>
+        <p><a href="index.html">Home</a></p>
+    </footer>
+
+</body>
+</html>

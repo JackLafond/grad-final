@@ -6,7 +6,7 @@
 
     <head>
         <meta charset="utf-8">
-        <title>PCP Test</title>
+        <title>NFL Draft Analysis</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
 
@@ -59,8 +59,8 @@
         body {
             display: flex;
             flex-direction: column;
-            margin-left: 10%;
-            margin-right: 10%;
+            /* margin-left: 10%;
+            margin-right: 10%; */
         }
 
         #main-hive-plot {
@@ -84,15 +84,21 @@
         li {
             display: flex;
             justify-content: space-between;
+            border-bottom: solid 1px lightgray;
         }
 
         h4 {
             font-size: 12px;
-            margin-left: 5px;
+            margin-left: 10px;
         }
 
-        p {
-            margin-top: 30px;
+        h2 {
+            margin-top: 50px;
+            margin-bottom: 10px;
+        }
+
+        main p {
+            margin-top: 10px;
             margin-bottom: 30px;
             line-height: 1.6;
         }
@@ -106,102 +112,126 @@
             flex-direction: row;
         }
 
+        #content-main {
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
     </style>
 
     <body>
 
+        <header>
+            <h1>NFL Draft Visual</h1>
+        </header>
+
         <nav tabindex="0">
             <div class="menu_dropdown">
-            <p><a href="index.html">Home</a></p>
-            <p><a href="test2.html">Final Visualization</a></p>
-            <p><a href="ProcessBook.html">Process Book</a></p>
-            <p><a href="Presentation.html">Presentation</a></p>
-            <p><a href="recreateWash.html">Washington Post</a></p>
-            <p><a href="hive.html">Hive</a></p>
-            <p class="thislink">PCP</p>
+                <p><a href="index.html">Home</a></p>
+                <p><a href="ProcessBook.html">Process Book</a></p>
+                <p><a href="Presentation.html">Presentation</a></p>
+                <p><a href="HiveScroll.html">Hive Intro</a></p>
+                <p class="thislink">Draft Analysis</p>
+                <p><a href="Sankey.html">Sankey</a></p>
+                <p><a href="Unused.html">Other Vis</a></p>
             </div>
         </nav>
 
-        <div id="content-hive-plot">
+        <main>
 
-            <h3 class="spacer">Hive Plot</h3>
+            <div id="content-main">
 
-            <label>Select a Year</label>
-            <select id="select_year" onchange="makeHive()">
-                <option value="2010">2010</option>
-                <option value="2011">2011</option>
-                <option value="2012">2012</option>
-                <option value="2013">2013</option>
-                <option value="2014">2014</option>
-                <option value="2015">2015</option>
-                <option value="2016">2016</option>
-                <option value="2017">2017</option>
-                <option value="2018">2018</option>
-                <option value="2019">2019</option>
-                <option value="2020">2020</option>
-                <option value="total">Total</option>
-            </select>
+                <h2>Draft Analysis</h2>
+                <p>On this page we go through our NFL draft analysis and provide interactive visualizations that helped us uncover useful draft insights.</p>
 
-            <div id="main-hive-plot">
-                <div class="sliders">
-                    <input type="range" id="MVP" min="0" max="4" value="1"><label for="MVP">MVP</label>
-                    <input type="range" id="SB_MVP" min="0" max="4" value="1"><label for="SB_MVP">SB MVP</label>
-                    <input type="range" id="SB_WIN" min="0" max="4" value="1"><label for="SB_WIN">SB Win</label>
-                    <input type="range" id="OPOY" min="0" max="4" value="1"><label for="OPOY">OPOY</label>
-                    <input type="range" id="DPOY" min="0" max="4" value="1"><label for="DPOY">DPOY</label>
-                    <input type="range" id="OROY" min="0" max="4" value="1"><label for="OROY">OROY</label>
-                    <input type="range" id="DROY" min="0" max="4" value="1"><label for="DROY">DROY</label>
-                    <input type="range" id="First_AP" min="0" max="4" value="1"><label for="First_AP">1st Team AP</label>
-                    <input type="range" id="Second_AP" min="0" max="4" value="1"><label for="Second_AP">2nd Team AP</label>
-                    <input type="range" id="Pro_Bowl" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
-                    <button class="update" type="button" onclick="makeHive()">Update Hive</button>
-                </div>
+                <div id="content-hive-plot">
 
-                <div id="svg-hive-plot"></div>
+                    <h3 class="spacer">Hive Plot</h3>
 
-                <div id="context">
-                    <div id="node-context">
-                        <h3 id="node-info">Context: </h3>
+                    <label>Select a Year</label>
+                    <select id="select_year" onchange="makeHive()">
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013</option>
+                        <option value="2014">2014</option>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="total">Total</option>
+                    </select>
+
+                    <div id="main-hive-plot">
+                        <div class="sliders">
+                            <input type="range" id="MVP" min="0" max="4" value="1"><label for="MVP">MVP</label>
+                            <input type="range" id="SB_MVP" min="0" max="4" value="1"><label for="SB_MVP">SB MVP</label>
+                            <input type="range" id="SB_WIN" min="0" max="4" value="1"><label for="SB_WIN">SB Win</label>
+                            <input type="range" id="OPOY" min="0" max="4" value="1"><label for="OPOY">OPOY</label>
+                            <input type="range" id="DPOY" min="0" max="4" value="1"><label for="DPOY">DPOY</label>
+                            <input type="range" id="OROY" min="0" max="4" value="1"><label for="OROY">OROY</label>
+                            <input type="range" id="DROY" min="0" max="4" value="1"><label for="DROY">DROY</label>
+                            <input type="range" id="First_AP" min="0" max="4" value="1"><label for="First_AP">1st Team AP</label>
+                            <input type="range" id="Second_AP" min="0" max="4" value="1"><label for="Second_AP">2nd Team AP</label>
+                            <input type="range" id="Pro_Bowl" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
+                            <button class="update" type="button" onclick="makeHive()">Update Hive</button>
+                        </div>
+
+                        <div id="svg-hive-plot"></div>
+
+                        <div id="context">
+                            <div id="node-context">
+                                <h3 id="node-info">Context: </h3>
+                            </div>
+
+                            <div id="player-context">
+                                <ul id="player-list"></ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="player-context">
-                        <ul id="player-list"></ul>
-                    </div>
+                    <p>This Hive plot shows the total draft profile by selected year. Each arc represents an individual player. Their arc passes through the college conference they were drafted from, the team that drafted them, and their current accolade score. The accolade score is aggregated by the weights on the left hand side. You can customize these weights to put more or less value on different NFL awards. Each slider ranges from 0 to 4 and the default for each is 1.</p>
+
                 </div>
+
+                <div id="content-small-multiples">
+                    <h3 class="spacer">Small Multiples</h3>
+                    <div id="svg-small-multiples"></div>
+                    <p>In looking at these small multiples it is important to consider the sample sizes of these accolades. For example awards like the MVP are only given to one player each year, and are mostly a QB biased position in the current landscape of the NFL. It is also important to consider that these aggregations are only for players who were drafted between 2010 and 2020, so players like Tom Brady and Aaron Rodgers are not inlcuded. As a result some of these less frequent and position specific awards are not the best for comparisons. Instead we should focus primarily on the follwoing three awards; Firt Team All Pro, Second Team All Pro, and Pro Bowl. For First and Second Team All Pro a player at each position is picked, making it a much more frequent award and non position biased. The Pro Bowl is an NFL run game at the end of the season which invites the game's all-stars based on player, coach, and fan voting. Like the All Pro awards the Pro Bowl invites players of all positions, and if a player declines to join like in the case that they are playing in the Super Bowl, then replacements are found making this another good award to represent general success across the NFL.</p>
+                    <p>Considering these three accolades, it is clear that the SEC dominates all other college conferences as their drafted players from 2010-2020 have accumulated the most First and Second Team All Pro, and Pro Bowl awards, doubling most other conferences except for the "Other" grouping. Has this always been the trend though? In the next section we dive into the accolades by year to see the time trends of college conferences and their players' accolades.</p>
+                </div>
+                <div id="content-small-lines">
+                    <h3 class="spacer">Accolades Over Time</h3>
+                    <div id="svg-small-lines"></div>
+                    <p>These line charts show the total accolades for NFL draftees colored by college conferences, and charted over draft years. Since the Y valeus for each year represent the total accolades for that college conference's draft class for that specific year we should expect to see a generally decreasing trend for all the lines as players drafted in more recent years like 2020 have had less time to accumulate awards when compared to players drafted in earlier years who have had more time in the NFL.</p>
+                    <p>In the First Team All Pro chart there is no clear winner and each conference generally deacreased from 2010 to 2020. However, in the Second Team All Pro and Pro Bowl Charts is where the SEC starts to shine, as in both charts the SEC consitently charts more accoaldes than all other college conferences except for some occasional spikes. Anohter important note is that in each of these charts the SEC decreaseed less than most other college conferences, and in the case of Second Team All Pro, they were close to a horizontal trend. These two findings suggest that the SEC produces more NFL ready players each year than otehr conferences, and the smaller decrease suggests that in more recent years their players have actually become more NFL ready than in the past as their accolade scores are not decreasing as mmuch as other conferences.</p>
+                </div>
+                <div id="content-weighted-lines">
+                    <div class="sliders">
+                        <input type="range" id="First_AP_line" min="0" max="4" value="3"><label for="First_AP">1st Team AP</label>
+                        <input type="range" id="Second_AP_line" min="0" max="4" value="2"><label for="Second_AP">2nd Team AP</label>
+                        <input type="range" id="Pro_Bowl_line" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
+                        <button class="update" type="button" onclick="makeWeightedLines()">Update Chart</button>
+                    </div>
+                    <div id="svg-weighted-lines"></div>
+                    <p>Included here is a combined weighted score chart that aggregates each of the three awards based on their weights. The default weighting is 3, 2, and 1 for First Team All Pro, Second Team All Pro and Pro Bowl, however you can change these weights as you see fit, each scale ranges from 0 to 4.</p>
+                </div>
+                <div id="content-sec-bubble">
+                    <h3 class="spacer">SEC Accolade Bubble Chart</h3>
+                    <p>From the previous charts it is clear that the SEC dominates other conferences in terms of producing NFL ready players, but what positions is it best at producing? Since First and Second Team All Pro, and Pro Bowl awards go to every position it is hard to see where on the field the SEC schools perform the bast. The following visualization shows a hierarvhy bubble charts that displays the accolades by position. The area of each circle is encoded by the total number of accolades for the circle allowing for comparisons within and across positions.</p>
+                    <div id="svg-sec-bubble"></div>
+                    <p>Suprisingly, the SEC does not produce nearly as many good QBs as it does for other positions. Another interesting finding is that for most positions, they have more Pro Bowls than Second Team All Pros and more Second Team All Pros than First Team All Pros. This is generally expected as First Team All Pro is the highest accolade among these three awards, However for Cornerback and Safety, these positions saw more First Team All Pros than double their Second Team All Pros. This suggests that the SEC is not just producing very good Cornerbacks and Safeties, but they are producing some of the leagues most elite defensive skill position players.</p>
+                </div>
+
             </div>
 
-            <p>This Hive plot shows the total draft profile by selected year. Each arc represents an individual player. Their arc passes through the college conference they were drafted from, the team that drafted them, and their current accolade score. The accolade score is aggregated by the weights on the left hand side. You can customize these weights to put more or less value on different NFL awards. Each slider ranges from 0 to 4 and the default for each is 1.</p>
+        </main>
 
-        </div>
-
-        <div id="content-small-multiples">
-            <h3 class="spacer">Small Multiples</h3>
-            <div id="svg-small-multiples"></div>
-            <p>In looking at these small multiples it is important to consider the sample sizes of these accolades. For example awards like the MVP are only given to one player each year, and are mostly a QB biased position in the current landscape of the NFL. It is also important to consider that these aggregations are only for players who were drafted between 2010 and 2020, so players like Tom Brady and Aaron Rodgers are not inlcuded. As a result some of these less frequent and position specific awards are not the best for comparisons. Instead we should focus primarily on the follwoing three awards; Firt Team All Pro, Second Team All Pro, and Pro Bowl. For First and Second Team All Pro a player at each position is picked, making it a much more frequent award and non position biased. The Pro Bowl is an NFL run game at the end of the season which invites the game's all-stars based on player, coach, and fan voting. Like the All Pro awards the Pro Bowl invites players of all positions, and if a player declines to join like in the case that they are playing in the Super Bowl, then replacements are found making this another good award to represent general success across the NFL.</p>
-            <p>Considering these three accolades, it is clear that the SEC dominates all other college conferences as their drafted players from 2010-2020 have accumulated the most First and Second Team All Pro, and Pro Bowl awards, doubling most other conferences except for the "Other" grouping. Has this always been the trend though? In the next section we dive into the accolades by year to see the time trends of college conferences and their players' accolades.</p>
-        </div>
-        <div id="content-small-lines">
-            <h3 class="spacer">Accolades Over Time</h3>
-            <div id="svg-small-lines"></div>
-            <p>These line charts show the total accolades for NFL draftees colored by college conferences, and charted over draft years. Since the Y valeus for each year represent the total accolades for that college conference's draft class for that specific year we should expect to see a generally decreasing trend for all the lines as players drafted in more recent years like 2020 have had less time to accumulate awards when compared to players drafted in earlier years who have had more time in the NFL.</p>
-            <p>In the First Team All Pro chart there is no clear winner and each conference generally deacreased from 2010 to 2020. However, in the Second Team All Pro and Pro Bowl Charts is where the SEC starts to shine, as in both charts the SEC consitently charts more accoaldes than all other college conferences except for some occasional spikes. Anohter important note is that in each of these charts the SEC decreaseed less than most other college conferences, and in the case of Second Team All Pro, they were close to a horizontal trend. These two findings suggest that the SEC produces more NFL ready players each year than otehr conferences, and the smaller decrease suggests that in more recent years their players have actually become more NFL ready than in the past as their accolade scores are not decreasing as mmuch as other conferences.</p>
-        </div>
-        <div id="content-weighted-lines">
-            <div class="sliders">
-                <input type="range" id="First_AP_line" min="0" max="4" value="3"><label for="First_AP">1st Team AP</label>
-                <input type="range" id="Second_AP_line" min="0" max="4" value="2"><label for="Second_AP">2nd Team AP</label>
-                <input type="range" id="Pro_Bowl_line" min="0" max="4" value="1"><label for="Pro_Bowl">Pro Bowl</label>
-                <button class="update" type="button" onclick="makeWeightedLines()">Update Chart</button>
-            </div>
-            <div id="svg-weighted-lines"></div>
-            <p>Included here is a combined weighted score chart that aggregates each of the three awards based on their weights. The default weighting is 3, 2, and 1 for First Team All Pro, Second Team All Pro and Pro Bowl, however you can change these weights as you see fit, each scale ranges from 0 to 4.</p>
-        </div>
-        <div id="content-sec-bubble">
-            <h3 class="spacer">SEC Accolade Bubble Chart</h3>
-            <p>From the previous charts it is clear that the SEC dominates other conferences in terms of producing NFL ready players, but what positions is it best at producing? Since First and Second Team All Pro, and Pro Bowl awards go to every position it is hard to see where on the field the SEC schools perform the bast. The following visualization shows a hierarvhy bubble charts that displays the accolades by position. The area of each circle is encoded by the total number of accolades for the circle allowing for comparisons within and across positions.</p>
-            <div id="svg-sec-bubble"></div>
-            <p>Suprisingly, the SEC does not produce nearly as many good QBs as it does for other positions. Another interesting finding is that for most positions, they have more Pro Bowls than Second Team All Pros and more Second Team All Pros than First Team All Pros. This is generally expected as First Team All Pro is the highest accolade among these three awards, However for Cornerback and Safety, these positions saw more First Team All Pros than double their Second Team All Pros. This suggests that the SEC is not just producing very good Cornerbacks and Safeties, but they are producing some of the leagues most elite defensive skill position players.</p>
-        </div>
+        <footer>
+            <p><a href="index.html">Home</a></p>
+        </footer>
 
     </body>
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
