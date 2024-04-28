@@ -4,6 +4,10 @@ Final Project - NFL Draft Data Visualization
 Jack Lafond, Dante Amicarella, Mason Perham
 ---
 
+For our project we built off of a previous project here: https://github.com/BradyA25/final
+
+In this project we used NFL draft data scraped from wikipedia in order to analyze NFL draft trends. More specifically in this iteration we focused on the player accolade data that was gathered and used it to assess the success of different college conferences in producing NFL ready players. We also used this project as a way to investigate which visualizations worked best for visualizing NFL draft data.
+
 ## Links
 Website: https://jacklafond.github.io/grad-final/
 
